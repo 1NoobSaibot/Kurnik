@@ -5,19 +5,20 @@ export class Player {
   private _core: (User | IAI)
   private _isHuman: boolean
 
-  private constructor () {}
+  private constructor() { }
 
-  static makeWithUser (user: User) {
+  static makeWithUser(user: User) {
     const player = new Player();
     player._core = user;
     player._isHuman = true;
   }
 
-  static makeWithAI (ai: IAI) {
+  static makeWithAI(ai: IAI) {
     const player = new Player();
     player._core = ai;
     player._isHuman = false;
   }
+
 }
 
 export interface IAI {

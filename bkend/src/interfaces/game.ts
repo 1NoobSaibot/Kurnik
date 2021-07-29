@@ -9,34 +9,31 @@ export enum State {
 export abstract class Game {
   readonly id: number;
   private _state: State = State.Initializing;
-  private _players: Player[];
+  protected _players: Player[];
   private _amountOfPlayers: number = 2;
-  private _currentPlayer: number = 0;
 
-
-  constructor (id: number) {
+  constructor(id: number) {
     this.id = id;
     this._players = new Player[this._amountOfPlayers];
   }
 
-  getState () {
+  get state(): State {
     return this._state;
-  };
+  }
 
   start() {
     if (this.checkConfig()) {
       this._state = State.Playing;
+      this.currentPlayer.
       return true;
     }
 
     return false;
   };
 
-  getCurrentPlayer () {
-    return this._players[this._currentPlayer]
-  };
+  abstract get currentPlayer(): Player;
 
-  checkConfig () {
+  checkConfig() {
     for (let i = 0; i < this._players.length; i++) {
       if (this._players[i] == null)
         return false;
@@ -44,4 +41,6 @@ export abstract class Game {
 
     return true;
   };
+
+  abstract getSides(): { index: number, sideName: string }[]
 }
