@@ -22,9 +22,13 @@ export default defineComponent({
     console.dir(arguments)
     const games = ref<GameOption[] | null>(null)
 
-    async function loadListOfGames() {
-      const { data } = await axios.get<GameOption[]>('/api/games')
-      games.value = data
+    async function loadListOfGames(): Promise<void> {
+      try {
+        const { data } = await axios.get<GameOption[]>('/api/games')
+        games.value = data
+      } catch (e) {
+        console.error(e)
+      }
     }
     
     loadListOfGames()

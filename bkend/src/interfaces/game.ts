@@ -1,37 +1,59 @@
-import { Player, IAI } from './player'
+import { IPlayer } from './IPlayer';
+import { IBoard, SideInfo } from './IBoard';
+import IField from './IField';
+import { History } from 'src/games/history';
 
 export enum State {
-  Initializing,
-  Playing,
-  End
+  Created,
+  Started,
+  Ended
 }
 
-export abstract class Game {
-  readonly id: number;
-  private _state: State = State.Initializing;
-  protected _players: Player[];
-  private _amountOfPlayers: number = 2;
+/**
+ * Инкапсулирует игровой цикл
+ * И взаимодействие игровой доски с игроками
+ * Оборачивает историю ходов
+ */
+export class Game<TBoard extends IBoard, TMove, TField extends IField> {
+  private _board: TBoard;
+  private _history: History<TField, TMove>
+  readonly id: number
+  private _state: State = State.Created
+  protected _players: IPlayer[]
 
   constructor(id: number) {
     this.id = id;
-    this._players = new Player[this._amountOfPlayers];
+  }
+
+  public get isOver() {
+    return this._state === State.Ended
+  }
+
+  public get isStarted() {
+    return this._state !== State.Created
   }
 
   get state(): State {
-    return this._state;
+    return this._state
   }
 
-  start() {
-    if (this.checkConfig()) {
-      this._state = State.Playing;
-      this.currentPlayer.
-      return true;
-    }
+  start(): boolean {
+    if (this.isStarted)
+      return false
+  
+    this.next()
+    return true
+  }
+  
+  async next(): Promise<void> {
+    const field = this._board.getField()
+    const move = await this.currentPlayer.getMove(field)
+    this._board.move(move)
+  }
 
-    return false;
-  };
-
-  abstract get currentPlayer(): Player;
+  get currentPlayer(): IPlayer {
+    return this._players[this._board.getCurrentPlayer()]
+  }
 
   checkConfig() {
     for (let i = 0; i < this._players.length; i++) {
@@ -42,5 +64,7 @@ export abstract class Game {
     return true;
   };
 
-  abstract getSides(): { index: number, sideName: string }[]
+  public getSides(): SideInfo[] {
+    return this._board.getSides()
+  }
 }

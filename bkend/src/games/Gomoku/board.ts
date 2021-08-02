@@ -1,24 +1,31 @@
-export enum Cell {
-	Empty,
-	White,
-	Black
+import { IBoard, Score, SideInfo } from "src/interfaces/IBoard"
+import Field from "./field"
+import { Cell, State } from "./state"
+
+export class MoveArg {
+	readonly x: number
+	readonly y: number
 }
 
-export class Board {
-	private _m: Cell[][]
+export class Board implements IBoard {
+	private _state: State
 	private _winner: Cell = Cell.Empty
-	private _currentPlayer = Cell.White
+	private _isGameOver: boolean = false
 
 	get winner(): Cell {
 		return this._winner
 	}
 
-	get isOver(): boolean {
-		return this._winner != Cell.Empty
+	isGameOver(): boolean {
+		return this._isGameOver
 	}
 
-	get currentPlayer(): Cell {
-		return this._currentPlayer
+	getCurrentPlayer() {
+		return this._state.currentPlayer
+	}
+
+	getAmountOfPlayers() {
+		return 2
 	}
 
 
@@ -30,21 +37,58 @@ export class Board {
 				m[i][j] = Cell.Empty
 			}
 		}
-		this._m = m
+
+		const state = new State()
+		state.currentPlayer = Cell.White
+		state.m = m
+		this._state = state
 	}
 
-	public move(x: number, y: number): boolean {
-		if (this.isOver || this._m[x][y] !== Cell.Empty)
+	public move({ x, y }: MoveArg): boolean {
+		if (this.isGameOver() || this._state.m[x][y] !== Cell.Empty)
 			return false
 
-		this._m[x][y] = this._currentPlayer
-		if (this._checkForEndOfGame(x, y))
-			this._winner = this._currentPlayer
-		else
+		this._state.m[x][y] = this._state.currentPlayer
+		if (this._checkForWin(x, y)) {
+			this._winner = this._state.currentPlayer
+			this._isGameOver = true
+		} else if (this._checkForEndOfGame()) {
+			this._isGameOver = true
+		} else {
 			this._swapPlayer()
+		}
 	}
 
-	private _checkForEndOfGame(x: number, y: number): boolean {
+	public getScore(playerIndex: number): Score {
+		if (!this.isGameOver())
+			throw new Error('Trying to get score before the game is over')
+		
+		if (this._winner === Cell.Empty)
+			return Score.Draw
+		
+		if (this._winner === this._playerIndex2Cell(playerIndex))
+			return Score.Winner
+		return Score.Looser
+	}
+
+	public getField() {
+		return new Field(this._state)
+	}
+
+	public getSides(): SideInfo[] {
+		return [
+			{ index: 0, name: 'White' },
+			{ index: 1, name: 'Black' }
+		]
+	}
+
+	/**
+	 * returns true if current player got win
+	 * @param x 
+	 * @param y 
+	 * @returns 
+	 */
+	private _checkForWin(x: number, y: number): boolean {
 		const dirs = [
 			{ dx: 0, dy: 1 },
 			{ dx: 1, dy: 1 },
@@ -56,7 +100,7 @@ export class Board {
 			{ dx: -1, dy: 1 }
 		]
 
-		const m = this._m
+		const m = this._state.m
 		const player = m[x][y]
 
 		for (let i = 0; i < dirs.length; i++) {
@@ -82,9 +126,30 @@ export class Board {
 		}
 	}
 
+	/**
+	 * Returns true if the board has no empty cells
+	 * @returns is board full
+	 */
+	private _checkForEndOfGame(): boolean {
+		for (let i = 0; i < 19; i++) {
+			for (let j = 0; j < 19; j++) {
+				if (this._state.m[i][j] === Cell.Empty)
+					return false
+			}
+		}
+
+		return true
+	}
+
 	private _swapPlayer(): void {
-		this._currentPlayer = this._currentPlayer === Cell.White
+		this._state.currentPlayer = this._state.currentPlayer === Cell.White
 			? Cell.Black
 			: Cell.White
+	}
+
+	private _playerIndex2Cell (index: number) {
+		if (index === 0) return Cell.White
+		if (index === 1) return Cell.Black
+		throw new Error(`Unexpected index (${index}): cannot convert playerIndex to boardSide`)
 	}
 }
