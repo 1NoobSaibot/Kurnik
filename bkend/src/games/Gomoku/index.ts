@@ -1,6 +1,6 @@
 import { Game } from '../../interfaces/game'
-import { Board } from './board'
-import Field from './field';
-import Move from './move';
+import { GomokuBoard } from './board'
+import GomokuField from './field';
+import GomokuMove from './move';
 
-export class Gomoku extends Game<Board, Move, Field> {}
+export class Gomoku extends Game<GomokuBoard, GomokuMove, GomokuField> {}

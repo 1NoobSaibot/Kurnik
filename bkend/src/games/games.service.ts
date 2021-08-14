@@ -2,10 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { Game } from 'src/interfaces/game';
 import { BattleShip } from './BattleShip';
 import { Gomoku } from './Gomoku';
+import Reversi from './Reversi';
+
 
 const GAMES = [
   BattleShip,
-  Gomoku
+  Gomoku,
+  Reversi
 ]
 
 class GameOption {

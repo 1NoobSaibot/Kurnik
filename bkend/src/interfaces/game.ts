@@ -1,7 +1,7 @@
 import { IPlayer } from './IPlayer';
 import { IBoard, SideInfo } from './IBoard';
 import IField from './IField';
-import { History } from 'src/games/history';
+// import { History } from 'src/games/history';
 
 export enum State {
   Created,
@@ -14,9 +14,9 @@ export enum State {
  * И взаимодействие игровой доски с игроками
  * Оборачивает историю ходов
  */
-export class Game<TBoard extends IBoard, TMove, TField extends IField> {
-  private _board: TBoard;
-  private _history: History<TField, TMove>
+export class Game<B extends IBoard, M, F extends IField> {
+  private _board: B;
+  // private _history: History<F, M>
   readonly id: number
   private _state: State = State.Created
   protected _players: IPlayer[]

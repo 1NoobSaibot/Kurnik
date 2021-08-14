@@ -1,10 +1,10 @@
-export enum Cell {
-	Empty,
-	White,
-	Black
+export enum GomokuCell {
+	Empty = 0,
+	White = 1,
+	Black = 2
 }
 
-export class State {
-	m: Cell[][]
-	currentPlayer: Cell
+export class GomokuState {
+	m: GomokuCell[][]
+	currentPlayer: GomokuCell
 }

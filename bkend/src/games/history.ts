@@ -1,25 +1,25 @@
 import IField from "src/interfaces/IField"
 
-export class HistoryNode<TField extends IField, TMove> {
-	readonly field: TField
-	readonly move: TMove
+export class HistoryNode<F extends IField, Move> {
+	readonly field: F
+	readonly move: Move
 	readonly playerIndex: number
 
-	constructor(field: TField, move: TMove, playerIndex: number) {
+	constructor(field: F, move: Move, playerIndex: number) {
 		this.field = field
 		this.move = move
 		this.playerIndex = playerIndex
 	}
 }
 
-export class History<TField extends IField, TMove> {
-	private _stack: HistoryNode<TField, TMove>[] = []
+export class History<F extends IField, Move> {
+	private _stack: HistoryNode<F, Move>[] = []
 
-	public push(field: TField, move: TMove, playerIndex: number) {
+	public push(field: F, move: Move, playerIndex: number) {
 		this._stack.push(new HistoryNode(field, move, playerIndex))
 	}
 
-	public getMovesByPlayer(playerIndex: number): HistoryNode<TField, TMove>[] {
+	public getMovesByPlayer(playerIndex: number): HistoryNode<F, Move>[] {
 		return this._stack
 			.filter(node => node.playerIndex === playerIndex)
 	}

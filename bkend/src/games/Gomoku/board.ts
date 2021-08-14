@@ -1,18 +1,16 @@
 import { IBoard, Score, SideInfo } from "src/interfaces/IBoard"
-import Field from "./field"
-import { Cell, State } from "./state"
+import GomokuField from "./field"
+import GomokuMove from "./move"
+import { GomokuCell, GomokuState } from "./state"
 
-export class MoveArg {
-	readonly x: number
-	readonly y: number
-}
-
-export class Board implements IBoard {
-	private _state: State
-	private _winner: Cell = Cell.Empty
+export class GomokuBoard implements IBoard {
+	private _state: GomokuState
+	private _winner: GomokuCell = GomokuCell.Empty
 	private _isGameOver: boolean = false
 
-	get winner(): Cell {
+	get winner(): GomokuCell {
+		if (!this._isGameOver)
+			throw new Error("Trying to get winner before game is over")
 		return this._winner
 	}
 
@@ -34,18 +32,18 @@ export class Board implements IBoard {
 		for (let i = 0; i < m.length; i++) {
 			m[i] = new Array(19)
 			for (let j = 0; j < 19; j++) {
-				m[i][j] = Cell.Empty
+				m[i][j] = GomokuCell.Empty
 			}
 		}
 
-		const state = new State()
-		state.currentPlayer = Cell.White
+		const state = new GomokuState()
+		state.currentPlayer = GomokuCell.White
 		state.m = m
 		this._state = state
 	}
 
-	public move({ x, y }: MoveArg): boolean {
-		if (this.isGameOver() || this._state.m[x][y] !== Cell.Empty)
+	public move({ x, y }: GomokuMove): boolean {
+		if (this.isGameOver() || this._state.m[x][y] !== GomokuCell.Empty)
 			return false
 
 		this._state.m[x][y] = this._state.currentPlayer
@@ -63,7 +61,7 @@ export class Board implements IBoard {
 		if (!this.isGameOver())
 			throw new Error('Trying to get score before the game is over')
 		
-		if (this._winner === Cell.Empty)
+		if (this._winner === GomokuCell.Empty)
 			return Score.Draw
 		
 		if (this._winner === this._playerIndex2Cell(playerIndex))
@@ -72,7 +70,7 @@ export class Board implements IBoard {
 	}
 
 	public getField() {
-		return new Field(this._state)
+		return new GomokuField(this._state)
 	}
 
 	public getSides(): SideInfo[] {
@@ -81,13 +79,7 @@ export class Board implements IBoard {
 			{ index: 1, name: 'Black' }
 		]
 	}
-
-	/**
-	 * returns true if current player got win
-	 * @param x 
-	 * @param y 
-	 * @returns 
-	 */
+	
 	private _checkForWin(x: number, y: number): boolean {
 		const dirs = [
 			{ dx: 0, dy: 1 },
@@ -133,7 +125,7 @@ export class Board implements IBoard {
 	private _checkForEndOfGame(): boolean {
 		for (let i = 0; i < 19; i++) {
 			for (let j = 0; j < 19; j++) {
-				if (this._state.m[i][j] === Cell.Empty)
+				if (this._state.m[i][j] === GomokuCell.Empty)
 					return false
 			}
 		}
@@ -142,14 +134,14 @@ export class Board implements IBoard {
 	}
 
 	private _swapPlayer(): void {
-		this._state.currentPlayer = this._state.currentPlayer === Cell.White
-			? Cell.Black
-			: Cell.White
+		this._state.currentPlayer = this._state.currentPlayer === GomokuCell.White
+			? GomokuCell.Black
+			: GomokuCell.White
 	}
 
 	private _playerIndex2Cell (index: number) {
-		if (index === 0) return Cell.White
-		if (index === 1) return Cell.Black
+		if (index === 0) return GomokuCell.White
+		if (index === 1) return GomokuCell.Black
 		throw new Error(`Unexpected index (${index}): cannot convert playerIndex to boardSide`)
 	}
 }
