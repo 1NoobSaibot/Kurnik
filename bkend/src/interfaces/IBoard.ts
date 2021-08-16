@@ -1,9 +1,9 @@
 import IField from "./IField";
 
 export enum Score {
-	Winner,
-	Draw,
-	Looser
+	Winner = 1,
+	Draw = 0,
+	Looser = -1
 }
 
 export class SideInfo {
@@ -11,12 +11,13 @@ export class SideInfo {
 	name: string
 }
 
-export interface IBoard {
-	move(args: object): boolean
+export interface IBoard<Move> {
+	move(args: Move): boolean
 	getCurrentPlayer(): number
 	isGameOver(): boolean
 	getScore(player: number): Score
 	getAmountOfPlayers(): number
 	getField(): IField
+	getMoves(): Move[]
 	getSides(): SideInfo[]
 }

@@ -1,6 +1,6 @@
-import { IPlayer } from './IPlayer';
-import { IBoard, SideInfo } from './IBoard';
-import IField from './IField';
+import { IPlayer } from './IPlayer'
+import { IBoard, SideInfo } from './IBoard'
+import IField from './IField'
 // import { History } from 'src/games/history';
 
 export enum State {
@@ -14,12 +14,12 @@ export enum State {
  * И взаимодействие игровой доски с игроками
  * Оборачивает историю ходов
  */
-export class Game<B extends IBoard, M, F extends IField> {
+export abstract class Game<B extends IBoard<M>, M extends Object, F extends IField> {
   private _board: B;
   // private _history: History<F, M>
   readonly id: number
   private _state: State = State.Created
-  protected _players: IPlayer[]
+  protected _players: IPlayer<M>[]
 
   constructor(id: number) {
     this.id = id;
@@ -47,13 +47,27 @@ export class Game<B extends IBoard, M, F extends IField> {
   
   async next(): Promise<void> {
     const field = this._board.getField()
-    const move = await this.currentPlayer.getMove(field)
+    const moves = this._board.getMoves()
+    const move = await this.currentPlayer.getMove(field, moves)
     this._board.move(move)
   }
 
-  get currentPlayer(): IPlayer {
+  get currentPlayer(): IPlayer<M> {
     return this._players[this._board.getCurrentPlayer()]
   }
+
+  setPlayer(side: number, player: IPlayer<M>) {
+    if (this._state != State.Created)
+      throw new Error('Game is already playing or finished. You can\'t set player in this game')
+    
+    this._players[side] = player
+  }
+
+  setBot(side: number, complexity: number) {
+    this._players[side] = this.makeBot(complexity)
+  }
+
+  abstract makeBot(complexity: number)
 
   checkConfig() {
     for (let i = 0; i < this._players.length; i++) {

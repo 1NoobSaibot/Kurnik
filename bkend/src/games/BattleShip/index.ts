@@ -1,4 +1,4 @@
-import { IBoard, Score, SideInfo } from 'src/interfaces/IBoard'
+/* import { IBoard, Score, SideInfo } from 'src/interfaces/IBoard'
 import IField from 'src/interfaces/IField'
 import { Game } from '../../interfaces/game'
 
@@ -56,3 +56,4 @@ class Board implements IBoard {
 
 export class BattleShip extends Game<Board, Move, Field> {
 }
+*/

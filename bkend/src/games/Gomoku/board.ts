@@ -3,7 +3,9 @@ import GomokuField from "./field"
 import GomokuMove from "./move"
 import { GomokuCell, GomokuState } from "./state"
 
-export class GomokuBoard implements IBoard {
+const FIELD_WEIGHT = 19
+
+export class GomokuBoard implements IBoard<GomokuMove> {
 	private _state: GomokuState
 	private _winner: GomokuCell = GomokuCell.Empty
 	private _isGameOver: boolean = false
@@ -28,10 +30,10 @@ export class GomokuBoard implements IBoard {
 
 
 	constructor() {
-		const m = new Array(19)
+		const m = new Array(FIELD_WEIGHT)
 		for (let i = 0; i < m.length; i++) {
-			m[i] = new Array(19)
-			for (let j = 0; j < 19; j++) {
+			m[i] = new Array(FIELD_WEIGHT)
+			for (let j = 0; j < FIELD_WEIGHT; j++) {
 				m[i][j] = GomokuCell.Empty
 			}
 		}
@@ -71,6 +73,20 @@ export class GomokuBoard implements IBoard {
 
 	public getField() {
 		return new GomokuField(this._state)
+	}
+
+	public getMoves() {
+		const moves: GomokuMove[] = []
+		const currentPlayer = this._state.currentPlayer
+
+		for (let x = 0; x < FIELD_WEIGHT; x++) {
+			for (let y = 0; y < FIELD_WEIGHT; y++) {
+				if (this._state.m[x][y] == GomokuCell.Empty)
+					moves.push({ x, y })
+			}
+		}
+
+		return moves
 	}
 
 	public getSides(): SideInfo[] {
@@ -123,8 +139,8 @@ export class GomokuBoard implements IBoard {
 	 * @returns is board full
 	 */
 	private _checkForEndOfGame(): boolean {
-		for (let i = 0; i < 19; i++) {
-			for (let j = 0; j < 19; j++) {
+		for (let i = 0; i < FIELD_WEIGHT; i++) {
+			for (let j = 0; j < FIELD_WEIGHT; j++) {
 				if (this._state.m[i][j] === GomokuCell.Empty)
 					return false
 			}

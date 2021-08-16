@@ -1,12 +1,11 @@
-import { Injectable } from '@nestjs/common';
-import { Game } from 'src/interfaces/game';
-import { BattleShip } from './BattleShip';
-import { Gomoku } from './Gomoku';
-import Reversi from './Reversi';
+import { Injectable } from '@nestjs/common'
+// import { BattleShip } from './BattleShip'
+import { Gomoku } from './Gomoku'
+import Reversi from './Reversi'
 
 
 const GAMES = [
-  BattleShip,
+  // BattleShip,
   Gomoku,
   Reversi
 ]
@@ -35,5 +34,9 @@ export class GamesService {
 
   getGameList () {
     return this.options.map(o => ({ id: o.id, name: o.name }))
+  }
+
+  createReversi() : Reversi {
+    return new Reversi(0)
   }
 }

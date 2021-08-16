@@ -4,7 +4,7 @@ import ReversiMove from './move'
 import ReversiField from './field'
 
 
-export default class ReversiBoard implements IBoard {
+export default class ReversiBoard implements IBoard<ReversiMove> {
 	private _state: ReversiState
 	private _winner: ReversiCell = ReversiCell.Empty
 	private _isGameOver: boolean = false
@@ -54,7 +54,8 @@ export default class ReversiBoard implements IBoard {
 		this._state = state
 	}
 
-	public move({ x, y }: ReversiMove) : boolean {
+	public move(args: ReversiMove) : boolean {
+		const { x, y } = args
 		if (this._isGameOver)
 			return false
 
@@ -75,6 +76,20 @@ export default class ReversiBoard implements IBoard {
 
 	public getField(): ReversiField {
 		return new ReversiField(this._state)
+	}
+
+	public getMoves(): ReversiMove[] {
+		const moves: ReversiMove[] = []
+		const currentPlayer = this._state.currentPlayer
+
+		for (let x = 0; x < 8; x++) {
+			for (let y = 0; y < 8; y++) {
+				if (this._canMove(x, y, currentPlayer))
+					moves.push({ x, y })
+			}
+		}
+
+		return moves
 	}
 
 	public getSides(): SideInfo[] {
