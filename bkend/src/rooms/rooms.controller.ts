@@ -24,10 +24,9 @@ export class RoomsController {
       const user = this.usersService.getUserById(0)
       room.game.setPlayer(0, new Player(user))
       room.game.setBot(1, 0)
-    // game.start()
+      room.game.start()
     }
-    // const game = room.game
-    // 
-    return true
+    const data = room.game.getData()
+    return data
   }
 }

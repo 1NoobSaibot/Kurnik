@@ -8,4 +8,8 @@ export class Gomoku extends Game<GomokuBoard, GomokuMove, GomokuField> {
   makeBot(complexity: number) {
     return new GomokuRandomBot()
   }
+
+  getData(): object {
+    return {}
+  }
 }

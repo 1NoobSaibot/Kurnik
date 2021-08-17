@@ -15,14 +15,15 @@ export enum State {
  * Оборачивает историю ходов
  */
 export abstract class Game<B extends IBoard<M>, M extends Object, F extends IField> {
-  private _board: B;
+  protected _board: B
   // private _history: History<F, M>
   readonly id: number
   private _state: State = State.Created
-  protected _players: IPlayer<M>[]
+  private _players: IPlayer<M>[] = []
 
   constructor(id: number) {
-    this.id = id;
+    this.id = id
+    console.dir(this)
   }
 
   public get isOver() {
@@ -76,9 +77,11 @@ export abstract class Game<B extends IBoard<M>, M extends Object, F extends IFie
     }
 
     return true;
-  };
+  }
 
   public getSides(): SideInfo[] {
     return this._board.getSides()
   }
+
+  public abstract getData()
 }

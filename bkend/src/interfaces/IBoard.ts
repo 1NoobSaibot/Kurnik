@@ -1,10 +1,5 @@
 import IField from "./IField";
-
-export enum Score {
-	Winner = 1,
-	Draw = 0,
-	Looser = -1
-}
+import { Score } from '../../../types/common'
 
 export class SideInfo {
 	index: number

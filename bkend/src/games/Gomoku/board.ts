@@ -1,7 +1,8 @@
-import { IBoard, Score, SideInfo } from "src/interfaces/IBoard"
+import { IBoard, SideInfo } from "src/interfaces/IBoard"
 import GomokuField from "./field"
 import GomokuMove from "./move"
 import { GomokuCell, GomokuState } from "./state"
+import { Score } from "../../../../types/common"
 
 const FIELD_WEIGHT = 19
 

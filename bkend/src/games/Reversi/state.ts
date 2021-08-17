@@ -1,8 +1,4 @@
-export enum ReversiCell {
-  Empty = 0,
-  White = 1,
-  Black = 2
-}
+import { ReversiCell } from "../../../../types/games/reversi/GameData"
 
 export class ReversiState {
   m: ReversiCell[][]

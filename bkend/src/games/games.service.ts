@@ -11,9 +11,9 @@ const GAMES = [
 ]
 
 class GameOption {
-  id: number;
-  name: string;
-  game: Function;
+  id: number
+  name: string
+  game: Function
 }
 
 @Injectable()
