@@ -1,6 +1,6 @@
 import IField from "src/interfaces/IField"
 import { ReversiState } from "./state"
-import { ReversiCell } from "../../../../types/games/reversi/GameData"
+import { ReversiCell } from "../../sharedTypes/games/reversi/GameData"
 
 /**
  * Класс поле хранит текущее состояние доски

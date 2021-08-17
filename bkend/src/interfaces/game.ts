@@ -23,7 +23,6 @@ export abstract class Game<B extends IBoard<M>, M extends Object, F extends IFie
 
   constructor(id: number) {
     this.id = id
-    console.dir(this)
   }
 
   public get isOver() {
@@ -50,22 +49,32 @@ export abstract class Game<B extends IBoard<M>, M extends Object, F extends IFie
     const field = this._board.getField()
     const moves = this._board.getMoves()
     const move = await this.currentPlayer.getMove(field, moves)
-    this._board.move(move)
+    if (move != null)
+      this._board.move(move)
   }
 
   get currentPlayer(): IPlayer<M> {
     return this._players[this._board.getCurrentPlayer()]
   }
 
+  private _setPlayer(side: number, player: IPlayer<M>) {
+    if (!this._players)
+      this._players = []
+    this._players[side] = player
+  }
+
   setPlayer(side: number, player: IPlayer<M>) {
     if (this._state != State.Created)
       throw new Error('Game is already playing or finished. You can\'t set player in this game')
     
-    this._players[side] = player
+    this._setPlayer(side, player)
   }
 
   setBot(side: number, complexity: number) {
-    this._players[side] = this.makeBot(complexity)
+    if (this._state != State.Created)
+      throw new Error('Game is already playing or finished. You can\'t set player in this game')
+    
+    this._setPlayer(side, this.makeBot(complexity))
   }
 
   abstract makeBot(complexity: number)
@@ -83,5 +92,5 @@ export abstract class Game<B extends IBoard<M>, M extends Object, F extends IFie
     return this._board.getSides()
   }
 
-  public abstract getData()
+  public abstract getData() : any
 }

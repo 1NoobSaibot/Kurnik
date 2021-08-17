@@ -1,8 +1,9 @@
-import { Controller, Param, Put } from '@nestjs/common';
+import { Controller, Param, Put, Req, Res } from '@nestjs/common';
 import { GamesService } from 'src/games/games.service';
 import { Player } from 'src/interfaces/IPlayer';
 import { UsersService } from 'src/users/users.service';
 import { RoomsService } from './rooms.service';
+import { Request, Response } from 'express';
 
 @Controller('api/room')
 export class RoomsController {
@@ -17,16 +18,22 @@ export class RoomsController {
   }
 
   @Put(':id/game/move')
-  moveGame(@Param('id') id: number) {
-    const room = this.roomsService.getRoomById(id)
+  moveGame(
+    @Req() request: Request,
+    @Res() response: Response,
+    @Param('id') id: number|string
+  ) {
+    const room = this.roomsService.getRoomById(+id)
     if (!room.game) {
       room.game = this.gamesService.createReversi()
       const user = this.usersService.getUserById(0)
+      console.log(room.game)
       room.game.setPlayer(0, new Player(user))
       room.game.setBot(1, 0)
       room.game.start()
     }
     const data = room.game.getData()
-    return data
+    console.log(`room/${id}/game/move [${new Date()}]`)
+    response.json(data)
   }
 }

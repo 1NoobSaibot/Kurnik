@@ -1,11 +1,11 @@
-import { Injectable } from '@nestjs/common';
-import { Game } from 'src/interfaces/game';
-import { IBoard } from 'src/interfaces/IBoard';
-import IField from 'src/interfaces/IField';
+import { Injectable } from '@nestjs/common'
+import { Game } from 'src/interfaces/game'
+import { IBoard } from 'src/interfaces/IBoard'
+import IField from 'src/interfaces/IField'
 import User from '../interfaces/user'
 
 class Watcher {
-  readonly user: User;
+  readonly user: User
   // WebSocket; There is have to be an oportunity to send some info to user.
 }
 

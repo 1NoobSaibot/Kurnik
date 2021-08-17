@@ -1,5 +1,5 @@
 import IField from "./IField";
-import { Score } from '../../../types/common'
+import { Score } from '../sharedTypes/common'
 
 export class SideInfo {
 	index: number

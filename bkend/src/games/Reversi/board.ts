@@ -2,8 +2,8 @@ import { IBoard, SideInfo } from 'src/interfaces/IBoard'
 import { ReversiState } from './state'
 import ReversiMove from './move'
 import ReversiField from './field'
-import { Score } from '../../../../types/common'
-import { ReversiCell } from '../../../../types/games/reversi/GameData'
+import { Score } from '../../sharedTypes/common'
+import { ReversiCell } from '../../sharedTypes/games/reversi/GameData'
 
 
 export default class ReversiBoard implements IBoard<ReversiMove> {
@@ -42,18 +42,7 @@ export default class ReversiBoard implements IBoard<ReversiMove> {
 	}
 
 	constructor() {
-		const m = new Array(8)
-		for (let i = 0; i < m.length; i++) {
-			m[i] = new Array(8)
-			for (let j = 0; j < 8; j++) {
-				m[i][j] = ReversiCell.Empty
-			}
-		}
-
-		const state = new ReversiState()
-		state.currentPlayer = ReversiCell.White
-		state.m = m
-		this._state = state
+		this._state = ReversiState.InitialState()
 	}
 
 	public move(args: ReversiMove) : boolean {

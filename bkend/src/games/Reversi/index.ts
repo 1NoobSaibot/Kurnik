@@ -4,11 +4,12 @@ import ReversiBoard from './Board'
 import ReversiField from './field'
 import ReversiMove from './move'
 import ReversiRandomBot from './randomBot'
-import { GameData } from '../../../../types/games/reversi/GameData'
+import { GameData } from '../../sharedTypes/games/reversi/GameData'
 
 export default class Reversi extends Game<ReversiBoard, ReversiMove, ReversiField> {
   constructor(id: number) {
     super(id)
+    this._board = new ReversiBoard()
   }
   
   makeBot(complexity: number) : IPlayer<ReversiMove> {

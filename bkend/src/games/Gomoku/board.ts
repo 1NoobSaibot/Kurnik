@@ -2,7 +2,7 @@ import { IBoard, SideInfo } from "src/interfaces/IBoard"
 import GomokuField from "./field"
 import GomokuMove from "./move"
 import { GomokuCell, GomokuState } from "./state"
-import { Score } from "../../../../types/common"
+import { Score } from "../../sharedTypes/common"
 
 const FIELD_WEIGHT = 19
 
