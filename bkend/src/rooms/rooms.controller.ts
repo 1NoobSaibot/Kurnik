@@ -1,4 +1,4 @@
-import { Controller, Param, Put, Req, Res } from '@nestjs/common';
+import { Body, Controller, Param, Put, Query, Req, Res } from '@nestjs/common';
 import { GamesService } from 'src/games/games.service';
 import { Player } from 'src/interfaces/IPlayer';
 import { UsersService } from 'src/users/users.service';
@@ -18,22 +18,22 @@ export class RoomsController {
   }
 
   @Put(':id/game/move')
-  moveGame(
-    @Req() request: Request,
+  async moveGame(
+    @Body() body: { x: number, y: number },
     @Res() response: Response,
     @Param('id') id: number|string
   ) {
     const room = this.roomsService.getRoomById(+id)
-    if (!room.game) {
+    if (!room.game || room.game.isOver) {
       room.game = this.gamesService.createReversi()
       const user = this.usersService.getUserById(0)
-      console.log(room.game)
       room.game.setPlayer(0, new Player(user))
       room.game.setBot(1, 0)
       room.game.start()
     }
-    const data = room.game.getData()
-    console.log(`room/${id}/game/move [${new Date()}]`)
-    response.json(data)
+    if (room.game.move({ x: body.x, y: body.y }) == false)
+      return response.status(400).send('Wrong moving')
+    await room.game.next()
+    response.json(room.game.getData())
   }
 }

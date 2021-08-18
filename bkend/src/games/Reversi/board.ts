@@ -37,8 +37,16 @@ export default class ReversiBoard implements IBoard<ReversiMove> {
 		return 2
 	}
 
-	public getCurrentPlayer() : ReversiCell {
-		return this._state.currentPlayer
+	/**
+	 * 
+	 * @returns Index of current side
+	 */
+	public getCurrentPlayer() : number {
+		if (this._state.currentPlayer === ReversiCell.White)
+			return 0
+		if (this._state.currentPlayer === ReversiCell.Black)
+			return 1
+		throw new Error('Side is undefined')
 	}
 
 	constructor() {
@@ -53,9 +61,9 @@ export default class ReversiBoard implements IBoard<ReversiMove> {
 		if (!this._setCell(x, y))
 			return false
 
-		this._swapPlayer();
+		this._swapPlayer()
 		if (!this._existMove(this._state.currentPlayer)) {
-			this._swapPlayer();
+			this._swapPlayer()
 			if (!this._existMove(this._state.currentPlayer)) {
 				this._isGameOver = true
 				this._winner = this._defineWinner()
@@ -120,7 +128,7 @@ export default class ReversiBoard implements IBoard<ReversiMove> {
 	private _setCell(x: number, y: number) {
 		const currentPlayer = this._state.currentPlayer
 		if (!this._canMove(x, y, currentPlayer))
-			return false;
+			return false
 		const m = this._state.m
 		
 		m[x][y] = currentPlayer

@@ -12,10 +12,10 @@
   </div>
 </template>
 
-<script lang='js'>
+<script lang='ts'>
 import axios from 'axios'
-import { ReversiCell, GameData } from '../../components/typesFromBkend/games/reversi/GameData.ts'
-import { Score } from '../../components/typesFromBkend/common.ts'
+import { ReversiCell, GameData } from '../../components/typesFromBkend/games/reversi/GameData'
+import { Score } from '../../components/typesFromBkend/common'
 
 export default {
   props: {
@@ -40,7 +40,7 @@ export default {
       currentPlayer: ReversiCell.White,
       probs: undefined,
       yourScore: Score.Draw
-    },
+    } as GameData,
   }),
   computed: {
     wCounter () {
@@ -51,15 +51,15 @@ export default {
     }
   },
   methods: {
-    async onMove(args) {
+    async onMove(x: number, y: number) {
       try {
-        const { data } = await axios.put(`api/room/${this.roomId}/game/move`, args)
+        const { data } = await axios.put<GameData>(`api/room/${this.roomId}/game/move`, { x, y })
         this.gameData = data
       } catch (e) {
         console.error(e)
       }
     },
-    countCells(m, cell) {
+    countCells(m: ReversiCell[][], cell: ReversiCell) {
       let sum = 0
       for (let i = 0; i < m.length; i++) {
         for (let j = 0; j < m[i].length; j++) {
@@ -69,12 +69,12 @@ export default {
       }
       return sum
     },
-    getCellValue(x, y) {
+    getCellValue(x: number, y: number) {
       if (this.gameData.m[x][y] !== ReversiCell.Empty)
         return '⬤'
       return ' '
     },
-    getCellStyle (x, y) {
+    getCellStyle (x: number, y: number) {
       return {
         color: this.gameData.m[x][y] == ReversiCell.White ? 'white' : 'black'
       }

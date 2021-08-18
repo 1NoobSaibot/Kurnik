@@ -45,12 +45,19 @@ export abstract class Game<B extends IBoard<M>, M extends Object, F extends IFie
     return true
   }
   
-  async next(): Promise<void> {
+  public async next(): Promise<void> {
     const field = this._board.getField()
     const moves = this._board.getMoves()
     const move = await this.currentPlayer.getMove(field, moves)
     if (move != null)
       this._board.move(move)
+  }
+
+  public move(args: M): boolean {
+    const isAccepted = this._board.move(args)
+    if (this._board.isGameOver())
+      this._state = State.Ended
+    return isAccepted
   }
 
   get currentPlayer(): IPlayer<M> {
