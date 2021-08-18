@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Put, Query, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, Param, Put, Query, Req, Res } from '@nestjs/common';
 import { GamesService } from 'src/games/games.service';
 import { Player } from 'src/interfaces/IPlayer';
 import { UsersService } from 'src/users/users.service';
@@ -17,11 +17,33 @@ export class RoomsController {
     this.usersService = users
   }
 
+  @Get(':id')
+  async getRoom(
+    @Param('id') id: string|number,
+    @Res() response: Response
+  ) {
+    const room = this.roomsService.getRoomById(+id)
+    if (room)
+      return response.json(room.getData())
+    return response.status(404).send('Room not found')
+  }
+
+  @Get(':id/game')
+  async getGame(
+    @Param('id') id: number|string,
+    @Res() response: Response
+  ) {
+    const room = this.roomsService.getRoomById(+id)
+    if (room && room.game)
+      return response.json(room.game.getData())
+    return response.status(404).send('Game not found')
+  }
+
   @Put(':id/game/move')
   async moveGame(
+    @Param('id') id: number|string,
     @Body() body: { x: number, y: number },
-    @Res() response: Response,
-    @Param('id') id: number|string
+    @Res() response: Response
   ) {
     const room = this.roomsService.getRoomById(+id)
     if (!room.game || room.game.isOver) {

@@ -19,6 +19,12 @@ class Room {
     this.id = id
     console.log(`Room (id=${id}) has been created`)
   }
+
+  public getData(): object {
+    return {
+      game: this.game ? this.game.getData() : undefined
+    }
+  }
 }
 
 @Injectable()

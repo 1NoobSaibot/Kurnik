@@ -3,7 +3,11 @@
     <div>White({{wCounter}}) Black({{bCounter}}) </div>
     <table>
       <tr v-for="y in 8" :key="y">
-        <td v-for="x in 8" :key="x" @click="onMove(x-1, y-1)" :style="getCellStyle(x-1, y-1)">
+        <td
+          v-for="x in 8" :key="x"
+          @click="$emit('move', { x: x-1, y: y-1 })"
+          :style="getCellStyle(x-1, y-1)"
+        >
           {{ getCellValue(x-1, y-1) }}
         </td>
       </tr>
@@ -13,20 +17,19 @@
 </template>
 
 <script lang='ts'>
-import axios from 'axios'
+import { computed, defineComponent, toRef } from 'vue'
 import { ReversiCell, GameData } from '../../components/typesFromBkend/games/reversi/GameData'
-import { Score } from '../../components/typesFromBkend/common'
 
-export default {
+export default defineComponent({
   props: {
-    roomId: {
-      type: [String, Number],
-      required: true
-    }
+    gameData: Object
   },
-  data: () => ({
-    gameData: {
-      m: [
+  setup (props) {
+    const gameData = toRef(props, 'gameData')
+    const board = computed<ReversiCell[][]>(() => {
+      if (gameData.value)
+        return gameData.value.m
+      return [
         [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
@@ -35,31 +38,16 @@ export default {
         [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0]
-      ],
-      isGameOver: false,
-      currentPlayer: ReversiCell.White,
-      probs: undefined,
-      yourScore: Score.Draw
-    } as GameData,
-  }),
-  computed: {
-    wCounter () {
-      return this.countCells(this.gameData.m, ReversiCell.White)
-    },
-    bCounter () {
-      return this.countCells(this.gameData.m, ReversiCell.Black)
-    }
-  },
-  methods: {
-    async onMove(x: number, y: number) {
-      try {
-        const { data } = await axios.put<GameData>(`api/room/${this.roomId}/game/move`, { x, y })
-        this.gameData = data
-      } catch (e) {
-        console.error(e)
-      }
-    },
-    countCells(m: ReversiCell[][], cell: ReversiCell) {
+      ]
+    })
+
+    const bCounter = computed<number>(() => {
+      return countCells(board.value, ReversiCell.Black)
+    })
+    const wCounter = computed<number>(() => {
+      return countCells(board.value, ReversiCell.White)
+    })
+    function countCells (m: ReversiCell[][], cell: ReversiCell) {
       let sum = 0
       for (let i = 0; i < m.length; i++) {
         for (let j = 0; j < m[i].length; j++) {
@@ -68,25 +56,27 @@ export default {
         }
       }
       return sum
-    },
-    getCellValue(x: number, y: number) {
-      if (this.gameData.m[x][y] !== ReversiCell.Empty)
+    }
+
+    const getCellValue = (x: number, y: number) => {
+      if (board.value[x][y] !== ReversiCell.Empty)
         return '⬤'
       return ' '
-    },
-    getCellStyle (x: number, y: number) {
+    }
+    const getCellStyle = (x: number, y: number) => {
       return {
-        color: this.gameData.m[x][y] == ReversiCell.White ? 'white' : 'black'
+        color: board.value[x][y] == ReversiCell.White ? 'white' : 'black'
       }
     }
-  },
-  created () {
-    console.log('Reversi.vue: created')
-  },
-  mounted () {
-    console.log('Reversi.vue: mounted')
+
+    return {
+      bCounter,
+      wCounter,
+      getCellValue,
+      getCellStyle
+    }
   }
-}
+})
 </script>
 
 <style scoped>
