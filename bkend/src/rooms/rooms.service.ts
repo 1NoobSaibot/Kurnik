@@ -20,21 +20,41 @@ class Room {
     console.log(`Room (id=${id}) has been created`)
   }
 
-  public getData(): object {
+  public getDataForPlayer(): object {
     return {
       game: this.game ? this.game.getData() : undefined
     }
   }
+
+  public getDataForUser(): object {
+    return {
+      id: this.id,
+      gameName: this.game ? this.game.constructor.name : undefined
+    }
+  }
+}
+
+export interface UserRoomData {
+  id: number,
+  gameName: string
 }
 
 @Injectable()
 export class RoomsService {
-  private readonly rooms: Room[] = []
+  private readonly _rooms: Room[] = []
 
   public getRoomById(id: number) : Room {
-    if (!this.rooms[id])
-      this.rooms[id] = new Room(id)
+    if (!this._rooms[id])
+      this._rooms[id] = new Room(id)
 
-    return this.rooms[id]
+    return this._rooms[id]
+  }
+
+  public getAllRooms(): UserRoomData[] {
+    const res = []
+    for (let i = 0; i < this._rooms.length; i++) {
+      res.push(this._rooms[i].getDataForUser())
+    }
+    return res
   }
 }

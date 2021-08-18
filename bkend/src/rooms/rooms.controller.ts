@@ -2,7 +2,7 @@ import { Body, Controller, Get, Param, Put, Query, Req, Res } from '@nestjs/comm
 import { GamesService } from 'src/games/games.service';
 import { Player } from 'src/interfaces/IPlayer';
 import { UsersService } from 'src/users/users.service';
-import { RoomsService } from './rooms.service';
+import { RoomsService, UserRoomData } from './rooms.service';
 import { Request, Response } from 'express';
 
 @Controller('api/room')
@@ -17,6 +17,11 @@ export class RoomsController {
     this.usersService = users
   }
 
+  @Get()
+  getAllRooms() {
+    return this.roomsService.getAllRooms()
+  }
+
   @Get(':id')
   async getRoom(
     @Param('id') id: string|number,
@@ -24,7 +29,7 @@ export class RoomsController {
   ) {
     const room = this.roomsService.getRoomById(+id)
     if (room)
-      return response.json(room.getData())
+      return response.json(room.getDataForPlayer())
     return response.status(404).send('Room not found')
   }
 
