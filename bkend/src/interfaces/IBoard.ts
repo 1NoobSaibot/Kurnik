@@ -6,13 +6,13 @@ export class SideInfo {
 	name: string
 }
 
-export interface IBoard<Move> {
+export interface IBoard<Move, F extends IField> {
 	move(args: Move): boolean
 	getCurrentPlayer(): number
 	isGameOver(): boolean
 	getScore(player: number): Score
 	getAmountOfPlayers(): number
-	getField(): IField
+	getField(): F
 	getMoves(): Move[]
 	getSides(): SideInfo[]
 }

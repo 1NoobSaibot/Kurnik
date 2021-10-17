@@ -1,6 +1,6 @@
 import IField from "src/interfaces/IField"
 
-export class HistoryNode<F extends IField, Move> {
+export class HistoryNode<F extends IField, Move extends Object> {
 	readonly field: F
 	readonly move: Move
 	readonly playerIndex: number
@@ -22,5 +22,13 @@ export class History<F extends IField, Move> {
 	public getMovesByPlayer(playerIndex: number): HistoryNode<F, Move>[] {
 		return this._stack
 			.filter(node => node.playerIndex === playerIndex)
+	}
+
+	public getFields(): F[] {
+		const res : F[] = []
+		for (let i = 0; i < this._stack.length; i++) {
+			res.push(this._stack[i].field)
+		}
+		return res
 	}
 }

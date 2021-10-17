@@ -1,7 +1,7 @@
 import { IPlayer } from './IPlayer'
 import { IBoard, SideInfo } from './IBoard'
 import IField from './IField'
-// import { History } from 'src/games/history';
+import { History } from 'src/games/history';
 
 export enum State {
   Created,
@@ -14,15 +14,16 @@ export enum State {
  * И взаимодействие игровой доски с игроками
  * Оборачивает историю ходов
  */
-export abstract class Game<B extends IBoard<M>, M extends Object, F extends IField> {
+export abstract class Game<B extends IBoard<M, F>, M extends Object, F extends IField> {
   protected _board: B
-  // private _history: History<F, M>
+  private _history: History<F, M>
   readonly id: number
   private _state: State = State.Created
   private _players: IPlayer<M>[] = []
 
   constructor(id: number) {
     this.id = id
+    this._history = new History<F, M>()
   }
 
   public get isOver() {
@@ -50,14 +51,28 @@ export abstract class Game<B extends IBoard<M>, M extends Object, F extends IFie
     const moves = this._board.getMoves()
     const move = await this.currentPlayer.getMove(field, moves)
     if (move != null)
-      this._board.move(move)
+      this._moveAndRegister(move)
+  }
+
+  public getHistoryData(): F[] {
+    return this._history.getFields()
   }
 
   public move(args: M): boolean {
-    const isAccepted = this._board.move(args)
+    const isAccepted = this._moveAndRegister(args)
     if (this._board.isGameOver())
       this._state = State.Ended
     return isAccepted
+  }
+
+  private _moveAndRegister(args: M) {
+    const field = this._board.getField()
+    const player = this._board.getCurrentPlayer()
+    const accepted = this._board.move(args)
+
+    if (accepted)
+      this._history.push(field, args, player)
+    return accepted
   }
 
   get currentPlayer(): IPlayer<M> {

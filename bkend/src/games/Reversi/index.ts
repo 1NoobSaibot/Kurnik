@@ -1,7 +1,7 @@
 import { IPlayer } from 'src/interfaces/IPlayer'
 import { Game } from '../../interfaces/game'
 import ReversiBoard from './Board'
-import ReversiField from './field'
+import ReversiField from '../../sharedTypes/games/reversi/field'
 import ReversiMove from './move'
 import ReversiRandomBot from './randomBot'
 import { GameData } from '../../sharedTypes/games/reversi/GameData'
@@ -23,6 +23,7 @@ export default class Reversi extends Game<ReversiBoard, ReversiMove, ReversiFiel
 
     return {
       m,
+      history: this.getHistoryData(),
       isGameOver: this.isOver,
       currentPlayer,
 

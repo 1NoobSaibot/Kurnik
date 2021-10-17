@@ -13,7 +13,7 @@ class Room {
   public readonly id: number
   public ownerId: number
   private watchers: Watcher[] = []
-  public game: Game<IBoard<any>, any, IField>
+  public game: Game<IBoard<any, any>, any, IField>
 
   constructor(id: number) {
     this.id = id

@@ -1,4 +1,5 @@
 import { Probabilities, Score } from '../../common'
+import ReversiField from './field'
 
 export enum ReversiCell {
   Empty = 0,
@@ -11,6 +12,7 @@ export enum ReversiCell {
  */
 export interface GameData {
   m: ReversiCell[][]
+  history: ReversiField[]
   isGameOver: boolean
   currentPlayer: ReversiCell
 

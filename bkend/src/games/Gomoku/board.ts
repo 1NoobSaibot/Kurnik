@@ -6,7 +6,7 @@ import { Score } from "../../sharedTypes/common"
 
 const FIELD_WEIGHT = 19
 
-export class GomokuBoard implements IBoard<GomokuMove> {
+export class GomokuBoard implements IBoard<GomokuMove, GomokuField> {
 	private _state: GomokuState
 	private _winner: GomokuCell = GomokuCell.Empty
 	private _isGameOver: boolean = false

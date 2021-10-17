@@ -1,6 +1,6 @@
-import { IPlayer } from "src/interfaces/IPlayer";
-import ReversiField from "./field";
-import ReversiMove from "./move";
+import { IPlayer } from "src/interfaces/IPlayer"
+import ReversiField from "../../sharedTypes/games/reversi/field"
+import ReversiMove from "./move"
 
 
 export default class ReversiRandomBot implements IPlayer<ReversiMove> {
