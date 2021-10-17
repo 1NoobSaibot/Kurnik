@@ -50,7 +50,7 @@
 </template>
 
 <script lang="ts">
-import axios from 'axios'
+import axios, { AxiosResponse } from 'axios'
 import EssentialLink from '../components/EssentialLink.vue'
 import { defineComponent, ref } from 'vue'
 
@@ -72,12 +72,13 @@ export default defineComponent({
 		const games = ref<GameOption[]>([])
 
 		async function loadListOfGames() {
-			try {
-				const { data } = await axios.get<GameOption[]>('/api/games')
-				games.value = data
-			} catch (e) {
-				console.error(e.message)
-			}
+			axios.get<GameOption[]>('/api/games')
+				.then((res: AxiosResponse<GameOption[]>) => {
+					games.value = res.data
+				})
+				.catch((error) => {
+					console.error(error)
+				})
 		}
 
 		loadListOfGames()

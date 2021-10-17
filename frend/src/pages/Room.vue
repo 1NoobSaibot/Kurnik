@@ -32,10 +32,10 @@ export default defineComponent({
     const onGameMove = async (args: Record<string, string|number|boolean>) => {
       try {
         const { data: game } = await axios
-          .put<object>(`api/room/${roomId.value}/game/move`, args)
+          .put<Record<string, unknown>>(`api/room/${roomId.value}/game/move`, args)
         roomData.value = Object.assign({}, roomData.value, { game })
       } catch (e) {
-        console.error(e.message)
+        console.error(e)
       }
     }
 
@@ -47,7 +47,7 @@ export default defineComponent({
             roomData.value = data
           })
           .catch((error) => {
-            console.error(error.message)
+            console.error(error)
           })
       }, 2000)
     })
