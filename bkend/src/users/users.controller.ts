@@ -1,9 +1,14 @@
-import { Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Res } from '@nestjs/common';
+import { Response } from 'express';
+import { AuthService } from './auth/auth.service';
 import { UsersService } from './users.service';
 
-@Controller('users')
+@Controller('api/user')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly authService: AuthService
+  ) {}
 
   @Get()
   findAll() {
@@ -15,8 +20,23 @@ export class UsersController {
     return this.usersService.getUserById(id)
   }
 
-  @Post()
-  store(@Param('name') name: string) {
-    return this.usersService.create(name);
+  @Post('login')
+  async login(@Body() body: LoginData, @Res() res: Response) {
+    const user = await this.usersService.getUserByAuthData(body.login, body.password)
+    if (!user) {
+      return res.status(401).send('Invalid login or password')
+    }
+
+    const jwtTokens = this.authService.makeJWTTokens(user)
+    return res.json({
+      ...jwtTokens,
+      id: user.id,
+      name: user.name
+    })
   }
+}
+
+interface LoginData {
+  login: string
+  password: string
 }
