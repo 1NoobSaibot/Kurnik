@@ -7,15 +7,11 @@ import { Request, Response } from 'express';
 
 @Controller('api/room')
 export class RoomsController {
-  private readonly roomsService: RoomsService
-  private readonly gamesService: GamesService
-  private readonly usersService: UsersService
-
-  constructor(rooms: RoomsService, games: GamesService, users: UsersService) {
-    this.roomsService = rooms
-    this.gamesService = games
-    this.usersService = users
-  }
+  constructor(
+    private readonly roomsService: RoomsService,
+    private readonly gamesService: GamesService,
+    private readonly usersService: UsersService
+  ) { }
 
   @Get()
   getAllRooms() {
