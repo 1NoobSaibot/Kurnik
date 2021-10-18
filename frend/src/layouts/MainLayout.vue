@@ -71,7 +71,7 @@ export default defineComponent({
 		const leftDrawerOpen = ref(false)
 		const games = ref<GameOption[]>([])
 
-		async function loadListOfGames() {
+		function loadListOfGames() {
 			axios.get<GameOption[]>('/api/games')
 				.then((res: AxiosResponse<GameOption[]>) => {
 					games.value = res.data

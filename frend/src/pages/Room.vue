@@ -14,9 +14,10 @@
 import axios from 'axios'
 import { computed, defineComponent, ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
+import { GameData } from '../components/typesFromBkend/games/reversi/GameData'
 
 interface RoomData {
-  game: object|undefined
+  game?: GameData
 }
 
 export default defineComponent({

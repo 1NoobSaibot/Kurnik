@@ -1,5 +1,6 @@
 <template>
   <q-page class="row items-center justify-evenly">
+    <login-form/>
     <ul v-if="games">
       <li
         v-for="game in games"
@@ -16,16 +17,14 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { axios } from '../boot/axios'
-
-interface GameOption {
-  id: number,
-  name: string
-}
+import LoginForm from '../components/forms/user/login.vue'
 
 export default defineComponent({
   name: 'PageIndex',
+  components: {
+    'login-form': LoginForm
+  },
   setup() {
-    console.dir(arguments)
     const games = ref<GameOption[]|null>(null)
 
     async function loadListOfGames(): Promise<GameOption[]|null> {
@@ -42,7 +41,14 @@ export default defineComponent({
     loadListOfGames()
       .catch((e) => console.error(e))
 
-    return { games };
+    return {
+      games
+    };
   }
-});
+})
+
+interface GameOption {
+  id: number,
+  name: string
+}
 </script>
