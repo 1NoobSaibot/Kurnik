@@ -8,16 +8,17 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
-import { axios } from '../../../boot/axios'
+import { useStore } from '../../../store'
 
 export default defineComponent({
   name: 'LoginForm',
   setup() {
+    const store = useStore()
     const login = ref<string>('')
     const password = ref<string>('')
 
     function submit () {
-      axios.post('api/user/login', {
+      store.dispatch('user/login', {
         login: login.value,
         password: password.value
       })
