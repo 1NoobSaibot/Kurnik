@@ -34,9 +34,31 @@ export class UsersController {
       name: user.name
     })
   }
+
+  @Post('signin')
+  async register(@Body() body: RegisterData, @Res() res: Response) {
+    // TODO: Make a validation pipe!
+    if (!body.name || !body.password || body.password !== body.confirm) {
+      return res.status(400).send('Incorrect register data')
+    }
+
+    const user = await this.usersService.storeUser(body.name, body.password)
+    const jwtTokens = this.authService.makeJWTTokens(user)
+    return res.json({
+      ...jwtTokens,
+      id: user.id,
+      name: user.name
+    })
+  }
 }
 
 interface LoginData {
   login: string
   password: string
+}
+
+interface RegisterData {
+  name: string
+  password: string
+  confirm: string
 }

@@ -1,9 +1,10 @@
 <template>
   <q-card>
     <q-card-section>
-      <div class="text-h6">Log In</div>
-      <q-input label="Login" v-model="login"/>
+      <div class="text-h6">Sign In</div>
+      <q-input label="Login" v-model="name"/>
       <q-input label="Password" v-model="password" type="password"/>
+      <q-input label="Confirm" v-model="confirm" type="password"/>
     </q-card-section>
     <q-card-actions>
       <q-btn @click="submit">Log In</q-btn>
@@ -13,19 +14,20 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
-import { useStore } from '../../../store'
+import { axios } from '../../../boot/axios'
 
 export default defineComponent({
-  name: 'LoginForm',
+  name: 'SignInForm',
   setup() {
-    const store = useStore()
-    const login = ref<string>('')
+    const name = ref<string>('')
     const password = ref<string>('')
+    const confirm = ref<string>('')
 
     function submit () {
-      store.dispatch('user/login', {
-        login: login.value,
-        password: password.value
+      axios.post('api/user/signin', {
+        name: name.value,
+        password: password.value,
+        confirm: confirm.value
       })
         .catch((error) => {
           console.log(error)
@@ -33,9 +35,10 @@ export default defineComponent({
     }
 
     return {
-      login,
+      name,
       submit,
-      password
+      password,
+      confirm
     }
   },
 })
