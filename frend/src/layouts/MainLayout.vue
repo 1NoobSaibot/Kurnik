@@ -12,16 +12,16 @@
 				/>
 
 				<q-toolbar-title>
-					Quasar App
+					Kurnik
 				</q-toolbar-title>
 
-				<div>Quasar v{{ $q.version }}</div>
+				<q-btn label="Log In" color="secondary" @click="logIn"/>/
+				<q-btn label="Sign In" color="secondary" @click="signIn"/>
 			</q-toolbar>
 		</q-header>
 
 		<q-drawer
 			v-model="leftDrawerOpen"
-			show-if-above
 			bordered
 			class="bg-grey-1"
 		>
@@ -46,13 +46,19 @@
 		<q-page-container>
 			<router-view />
 		</q-page-container>
+		<q-dialog v-model="isAuthMode">
+			<login-form v-if="authMode === 'logIn'"/>
+			<sign-in-form v-else/>
+		</q-dialog>
 	</q-layout>
 </template>
 
 <script lang="ts">
 import axios, { AxiosResponse } from 'axios'
 import EssentialLink from '../components/EssentialLink.vue'
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, computed } from 'vue'
+import LoginForm from 'src/components/forms/user/login.vue'
+import SignInForm from '../components/forms/user/signIn.vue'
 
 interface GameOption {
   id: number,
@@ -64,31 +70,61 @@ export default defineComponent({
 	name: 'MainLayout',
 
 	components: {
-		EssentialLink
+		EssentialLink,
+		LoginForm,
+		SignInForm
 	},
 
 	setup () {
+		// Menu of Games
 		const leftDrawerOpen = ref(false)
 		const games = ref<GameOption[]>([])
+		axios.get<GameOption[]>('/api/games')
+			.then((res: AxiosResponse<GameOption[]>) => {
+				games.value = res.data
+			})
+			.catch((error) => {
+				console.error(error)
+			})
 
-		function loadListOfGames() {
-			axios.get<GameOption[]>('/api/games')
-				.then((res: AxiosResponse<GameOption[]>) => {
-					games.value = res.data
-				})
-				.catch((error) => {
-					console.error(error)
-				})
+		// Auth forms
+		const authMode = ref<string>('')
+		const isAuthMode = computed<boolean>({
+			get: () => {
+				return authMode.value !== ''
+			},
+			set (value) {
+				if (!value) {
+					authMode.value = ''
+				}
+			}
+		})
+
+		function logIn () {
+			authMode.value = 'logIn'
 		}
 
-		loadListOfGames()
+		function signIn () {
+			authMode.value = 'signIn'
+		}
+
+		function cancelAuth () {
+			authMode.value = ''
+		}
+
 
 		return {
 			games,
 			leftDrawerOpen,
 			toggleLeftDrawer () {
 				leftDrawerOpen.value = !leftDrawerOpen.value
-			}
+			},
+
+			isAuthMode,
+			authMode,
+			logIn,
+			signIn,
+			cancelAuth
 		}
 	}
 })
