@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import User from '../interfaces/user';
+import { UserDto } from './UserDtos';
 
 @Injectable()
 export class UsersService {
-  private readonly users: User[] = [
+  private readonly users: UserDto[] = [
     {
       id: 1,
       name: 'test',
@@ -19,7 +19,7 @@ export class UsersService {
     return this.users[+id - 1];
   }
 
-  async getUserByAuthData (login: string, password: string): Promise<User|null> {
+  async getUserByAuthData (login: string, password: string): Promise<UserDto|null> {
     for (let i = 0; i < this.users.length; i++) {
       const user = this.users[i]
       if (user.name === login) {

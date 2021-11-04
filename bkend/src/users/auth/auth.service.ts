@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
-import User from '../../interfaces/user'
+import { UserDto } from 'src/users/UserDtos'
 
 @Injectable()
 export class AuthService {
@@ -8,7 +8,7 @@ export class AuthService {
 		private jwtService: JwtService
 	) {}
 
-	makeJWTTokens (user: User): JWTTokens {
+	makeJWTTokens (user: UserDto): JWTTokens {
 		const payload = {
 			name: user.name,
 			id: user.id,
