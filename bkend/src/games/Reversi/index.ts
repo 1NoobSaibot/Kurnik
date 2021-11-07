@@ -1,5 +1,5 @@
-import { IPlayer } from 'src/interfaces/IPlayer'
-import { Game } from '../../interfaces/game'
+import { IPlayer } from 'src/games/IPlayer'
+import { Game } from 'src/games/game'
 import ReversiBoard from './Board'
 import ReversiField from '../../sharedTypes/games/reversi/field'
 import ReversiMove from './move'

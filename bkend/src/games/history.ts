@@ -1,4 +1,4 @@
-import IField from "src/interfaces/IField"
+import IField from "src/games/IField"
 
 export class HistoryNode<F extends IField, Move extends Object> {
 	readonly field: F

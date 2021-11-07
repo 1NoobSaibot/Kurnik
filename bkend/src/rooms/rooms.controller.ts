@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Put, Query, Req, Res } from '@nestjs/common';
 import { GamesService } from 'src/games/games.service';
-import { Player } from 'src/interfaces/IPlayer';
+import { Player } from 'src/games/IPlayer';
 import { UsersService } from 'src/users/users.service';
 import { RoomsService, UserRoomData } from './rooms.service';
 import { Request, Response } from 'express';

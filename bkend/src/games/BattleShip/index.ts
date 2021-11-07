@@ -1,6 +1,6 @@
-/* import { IBoard, Score, SideInfo } from 'src/interfaces/IBoard'
-import IField from 'src/interfaces/IField'
-import { Game } from '../../interfaces/game'
+/* import { IBoard, Score, SideInfo } from 'src/games/IBoard'
+import IField from 'src/games/IField'
+import { Game } from 'src/games/game'
 
 enum Type {
   Classic, Russian

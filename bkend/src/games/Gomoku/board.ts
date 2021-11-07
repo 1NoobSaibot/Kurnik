@@ -1,4 +1,4 @@
-import { IBoard, SideInfo } from "src/interfaces/IBoard"
+import { IBoard, SideInfo } from "src/games/IBoard"
 import GomokuField from "./field"
 import GomokuMove from "./move"
 import { GomokuCell, GomokuState } from "./state"

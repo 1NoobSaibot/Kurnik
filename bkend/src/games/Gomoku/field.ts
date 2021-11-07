@@ -1,4 +1,4 @@
-import IField from "src/interfaces/IField"
+import IField from "src/games/IField"
 import { GomokuState, GomokuCell } from "./state";
 
 /**

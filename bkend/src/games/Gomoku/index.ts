@@ -1,4 +1,4 @@
-import { Game } from '../../interfaces/game'
+import { Game } from 'src/games/game'
 import { GomokuBoard } from './board'
 import GomokuField from './field';
 import GomokuMove from './move';

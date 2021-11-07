@@ -1,4 +1,4 @@
-import { IPlayer } from "src/interfaces/IPlayer";
+import { IPlayer } from "src/games/IPlayer";
 import GomokuField from "./field";
 import GomokuMove from "./move";
 

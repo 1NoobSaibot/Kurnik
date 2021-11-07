@@ -1,4 +1,4 @@
-import { IBoard, SideInfo } from 'src/interfaces/IBoard'
+import { IBoard, SideInfo } from 'src/games/IBoard'
 import { ReversiState } from './state'
 import ReversiMove from './move'
 import ReversiField from 'src/sharedTypes/games/reversi/field'

@@ -1,4 +1,4 @@
-import IField from "../../interfaces/IField"
+import IField from "src/games/IField"
 
 class Node<F extends IField, Move> {
   field: F

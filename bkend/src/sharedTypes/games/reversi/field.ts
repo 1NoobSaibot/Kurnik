@@ -1,4 +1,4 @@
-import IField from "src/interfaces/IField"
+import IField from "src/games/IField"
 import { ReversiState } from "../../../games/Reversi/state"
 import { ReversiCell } from "./GameData"
 

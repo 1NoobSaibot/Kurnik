@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
-import { Game } from 'src/interfaces/game'
-import { IBoard } from 'src/interfaces/IBoard'
-import IField from 'src/interfaces/IField'
+import { Game } from 'src/games/game'
+import { IBoard } from 'src/games/IBoard'
+import IField from 'src/games/IField'
 import { UserDto } from 'src/users/UserDtos'
 
 class Watcher {

@@ -1,4 +1,4 @@
-import { IPlayer } from "src/interfaces/IPlayer"
+import { IPlayer } from "src/games/IPlayer"
 import ReversiField from "../../sharedTypes/games/reversi/field"
 import ReversiMove from "./move"
 
