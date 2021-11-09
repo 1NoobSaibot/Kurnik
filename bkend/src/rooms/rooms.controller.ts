@@ -1,9 +1,8 @@
-import { Body, Controller, Get, Param, Put, Query, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Res } from '@nestjs/common';
 import { GamesService } from 'src/games/games.service';
-import { Player } from 'src/games/IPlayer';
 import { UsersService } from 'src/users/users.service';
-import { RoomsService, UserRoomData } from './rooms.service';
-import { Request, Response } from 'express';
+import { CreateRoomDto, RoomsService } from './rooms.service';
+import { Response } from 'express';
 
 @Controller('api/room')
 export class RoomsController {
@@ -29,6 +28,12 @@ export class RoomsController {
     return response.status(404).send('Room not found')
   }
 
+  @Post()
+  createRoom (@Body() body: CreateRoomDto, @Res() res: Response) {
+    const room = this.roomsService.createRoom(body)
+    return res.json(room.getDataForUser())
+  }
+
   @Get(':id/game')
   async getGame(
     @Param('id') id: number|string,
@@ -48,11 +53,7 @@ export class RoomsController {
   ) {
     const room = this.roomsService.getRoomById(+id)
     if (!room.game || room.game.isOver) {
-      room.game = this.gamesService.createReversi()
-      const user = this.usersService.getUserById(0)
-      room.game.setPlayer(0, new Player(user))
-      room.game.setBot(1, 0)
-      room.game.start()
+      return response.status(403).send('Game is over or was not created')
     }
     if (await room.move(body) == false)
       return response.status(400).send('Wrong moving')

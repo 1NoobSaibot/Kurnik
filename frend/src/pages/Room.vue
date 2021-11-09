@@ -25,7 +25,7 @@ export default defineComponent({
   setup () {
     const route = useRoute()
     const roomId = computed<number>(() => {
-      return +(route?.query?.roomId || 0)
+      return +route?.params.id
     })
     const roomData = ref<RoomData>({
       game: undefined

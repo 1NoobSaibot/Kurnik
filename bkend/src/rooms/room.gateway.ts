@@ -8,10 +8,13 @@ export class RoomGateway implements OnGatewayConnection {
   {}
 
   handleConnection(client: Socket, ...args: any[]) {
-    const roomId = +(client.handshake.query.roomId) // TODO: Get room id
-    this.roomsService
-      .getRoomById(roomId)
-      ?.connect(client)
+    const roomId = +(client.handshake.query.roomId)
+    const room = this.roomsService.getRoomById(roomId)
+    if (!room) {
+      client.disconnect()
+      return
+    }
+    room.connect(client)
   }
   
   @SubscribeMessage('message')

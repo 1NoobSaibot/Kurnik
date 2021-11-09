@@ -9,3 +9,8 @@ export enum Score {
 	Draw = 0,
 	Looser = -1
 }
+
+export interface RoomHeaderData {
+  id: number,
+  game: string
+}

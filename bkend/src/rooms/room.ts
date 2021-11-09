@@ -25,7 +25,7 @@ export class Room {
   public getDataForUser(): object {
     return {
       id: this.id,
-      gameName: this.game ? this.game.constructor.name : undefined
+      game: this.game ? this.game.constructor.name : undefined
     }
   }
 
