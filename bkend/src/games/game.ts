@@ -19,7 +19,7 @@ export abstract class Game<B extends IBoard<M, F>, M extends Object, F extends I
   private _history: History<F, M>
   readonly id: number
   private _state: State = State.Created
-  private _players: IPlayer<M>[] = []
+  private _players: IPlayer<F, M>[] = []
 
   constructor(id: number) {
     this.id = id
@@ -46,12 +46,15 @@ export abstract class Game<B extends IBoard<M, F>, M extends Object, F extends I
     return true
   }
   
-  public async next(): Promise<void> {
+  public async next(): Promise<boolean> {
+    if (this.currentPlayer.isUser) {
+      return false
+    } 
     const field = this._board.getField()
     const moves = this._board.getMoves()
     const move = await this.currentPlayer.getMove(field, moves)
-    if (move != null)
-      this._moveAndRegister(move)
+    this._moveAndRegister(move)
+    return true
   }
 
   public getHistoryData(): F[] {
@@ -75,17 +78,17 @@ export abstract class Game<B extends IBoard<M, F>, M extends Object, F extends I
     return accepted
   }
 
-  get currentPlayer(): IPlayer<M> {
+  get currentPlayer(): IPlayer<F, M> {
     return this._players[this._board.getCurrentPlayer()]
   }
 
-  private _setPlayer(side: number, player: IPlayer<M>) {
+  private _setPlayer(side: number, player: IPlayer<F, M>) {
     if (!this._players)
       this._players = []
     this._players[side] = player
   }
 
-  setPlayer(side: number, player: IPlayer<M>) {
+  setPlayer(side: number, player: IPlayer<F, M>) {
     if (this._state != State.Created)
       throw new Error('Game is already playing or finished. You can\'t set player in this game')
     

@@ -89,6 +89,11 @@ module.exports = configure(function (ctx) {
         '/api': {
           target: 'http://localhost:3456',
           changeOrigin: true
+        },
+        '/socket.io': {
+          target: 'http://localhost:3456',
+          changeOrigin: true,
+          ws: true
         }
       }
     },

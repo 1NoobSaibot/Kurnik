@@ -43,7 +43,7 @@ export class RoomsController {
   @Put(':id/game/move')
   async moveGame(
     @Param('id') id: number|string,
-    @Body() body: { x: number, y: number },
+    @Body() body: Record<string, any>,
     @Res() response: Response
   ) {
     const room = this.roomsService.getRoomById(+id)
@@ -54,9 +54,8 @@ export class RoomsController {
       room.game.setBot(1, 0)
       room.game.start()
     }
-    if (room.game.move({ x: body.x, y: body.y }) == false)
+    if (await room.move(body) == false)
       return response.status(400).send('Wrong moving')
-    await room.game.next()
     response.json(room.game.getData())
   }
 }

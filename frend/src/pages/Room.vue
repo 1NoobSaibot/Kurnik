@@ -15,6 +15,7 @@ import axios from 'axios'
 import { computed, defineComponent, ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 import { GameData } from '../components/typesFromBkend/games/reversi/GameData'
+import { io, Socket } from 'socket.io-client'
 
 interface RoomData {
   game?: GameData
@@ -40,20 +41,42 @@ export default defineComponent({
       }
     }
 
-    let updateIntervalId: number|undefined = undefined
-    onMounted(() => {
-      updateIntervalId = +setInterval(() => {
-        axios.get<RoomData>(`api/room/${roomId.value}`)
-          .then(({ data }) => {
-            roomData.value = data
-          })
-          .catch((error) => {
-            console.error(error)
-          })
-      }, 2000)
+    const fetch = () => {
+      axios.get<RoomData>(`api/room/${roomId.value}`)
+        .then(({ data }) => {
+          roomData.value = data
+        })
+        .catch((error) => {
+          console.error(error)
+        })
+    }
+
+    const socket: Socket = io('/room', {
+      transports: ['websocket'],
+      query: { userId: '7', roomId: roomId.value + '' }
     })
+    socket
+      .on('connect', () => {
+        console.log('Socket has been connected')
+        fetch()
+      })
+      .on('connect_error', (...args) => {
+        console.log('Connect ERROR', args)
+      })
+      .on('disconnect', () => {
+        console.log('Socket has been disconnected')
+      })
+      .on('message', (...args: any[]) => {
+        console.log(args)
+        fetch()
+      })
+      .on('move', (...args: any[]) => {
+        console.log(args)
+        fetch()
+      })
+
     onBeforeUnmount(() => {
-      clearInterval(updateIntervalId)
+      socket.disconnect()
     })
 
     return {

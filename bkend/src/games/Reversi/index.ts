@@ -12,7 +12,7 @@ export default class Reversi extends Game<ReversiBoard, ReversiMove, ReversiFiel
     this._board = new ReversiBoard()
   }
   
-  makeBot(complexity: number) : IPlayer<ReversiMove> {
+  makeBot(complexity: number) : IPlayer<ReversiField, ReversiMove> {
     if (complexity === 0)
       return new ReversiRandomBot()
     return new ReversiRandomBot()

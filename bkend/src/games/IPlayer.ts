@@ -1,20 +1,28 @@
 import IField from './IField'
 import { UserDto } from 'src/users/UserDtos'
 
-export interface IPlayer<Move> {
-  getMove(field: IField, moves: Move[]): Promise<Move|null>
+export interface IPlayer<Field extends IField, Move> {
+  getMove(field: Field, moves: Move[]): Promise<Move|null>
+  isBot: boolean
+  isUser: boolean
 }
 
-export class Player<Move> implements IPlayer<Move> {
-  private _ws: WebSocket
-  private _user: UserDto
+export class Player<Field extends IField, Move> implements IPlayer<Field, Move> {
+  private _user?: UserDto
   
-  constructor(user: UserDto) {
+  constructor(user?: UserDto) {
     this._user = user
   }
 
-  async getMove(field: IField): Promise<Move|null> {
-    // _ws.send('Your Turn')
-    return null
+  getMove(field: Field): Promise<Move> {
+    throw new Error('User is not a bot')
+  }
+
+  public get isBot () {
+    return false
+  }
+
+  public get isUser () {
+    return true
   }
 }
