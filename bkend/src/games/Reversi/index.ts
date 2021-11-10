@@ -1,4 +1,4 @@
-import { IPlayer } from 'src/games/IPlayer'
+import { Bot } from 'src/games/Player'
 import { Game } from 'src/games/game'
 import ReversiBoard from './Board'
 import ReversiField from '../../sharedTypes/games/reversi/field'
@@ -12,13 +12,14 @@ export default class Reversi extends Game<ReversiBoard, ReversiMove, ReversiFiel
     this._board = new ReversiBoard()
   }
   
-  makeBot(complexity: number) : IPlayer<ReversiField, ReversiMove> {
+  makeBot (complexity: number): Bot<ReversiField, ReversiMove> {
     if (complexity === 0)
       return new ReversiRandomBot()
+    // TODO: Make a complexity bot
     return new ReversiRandomBot()
   }
 
-  getData() : GameData {
+  getData (): GameData {
     const { m, currentPlayer } = this._board.getField()
 
     return {

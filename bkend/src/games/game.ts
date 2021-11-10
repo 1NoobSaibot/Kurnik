@@ -1,7 +1,8 @@
-import { IPlayer } from './IPlayer'
+import { Bot, Human, IPlayer } from './Player'
 import { IBoard, SideInfo } from './IBoard'
 import IField from './IField'
 import { History } from 'src/games/history';
+import { Watcher } from 'src/rooms/watcher';
 
 export enum State {
   Created,
@@ -19,7 +20,7 @@ export abstract class Game<B extends IBoard<M, F>, M extends Object, F extends I
   private _history: History<F, M>
   readonly id: number
   private _state: State = State.Created
-  private _players: IPlayer<F, M>[] = []
+  private _players: IPlayer[] = []
 
   constructor(id: number) {
     this.id = id
@@ -49,10 +50,11 @@ export abstract class Game<B extends IBoard<M, F>, M extends Object, F extends I
   public async next(): Promise<boolean> {
     if (this.currentPlayer.isUser) {
       return false
-    } 
+    }
+    const bot = this.currentPlayer as Bot<F, M>
     const field = this._board.getField()
     const moves = this._board.getMoves()
-    const move = await this.currentPlayer.getMove(field, moves)
+    const move = await bot.getMove(field, moves)
     this._moveAndRegister(move)
     return true
   }
@@ -61,14 +63,14 @@ export abstract class Game<B extends IBoard<M, F>, M extends Object, F extends I
     return this._history.getFields()
   }
 
-  public move(args: M): boolean {
+  public move (args: M): boolean {
     const isAccepted = this._moveAndRegister(args)
     if (this._board.isGameOver())
       this._state = State.Ended
     return isAccepted
   }
 
-  private _moveAndRegister(args: M) {
+  private _moveAndRegister (args: M) {
     const field = this._board.getField()
     const player = this._board.getCurrentPlayer()
     const accepted = this._board.move(args)
@@ -78,24 +80,30 @@ export abstract class Game<B extends IBoard<M, F>, M extends Object, F extends I
     return accepted
   }
 
-  get currentPlayer(): IPlayer<F, M> {
+  get currentPlayer (): IPlayer {
     return this._players[this._board.getCurrentPlayer()]
   }
 
-  private _setPlayer(side: number, player: IPlayer<F, M>) {
+  /**
+   * Sets bots or humans
+   * @param side 
+   * @param player 
+   */
+  private _setPlayer (side: number, player: IPlayer) {
     if (!this._players)
       this._players = []
     this._players[side] = player
   }
 
-  setPlayer(side: number, player: IPlayer<F, M>) {
+  addHuman (side: number, watcher: Watcher) {
     if (this._state != State.Created)
       throw new Error('Game is already playing or finished. You can\'t set player in this game')
     
+    const player = new Human(watcher)
     this._setPlayer(side, player)
   }
 
-  setBot(side: number, complexity: number) {
+  public setBot (side: number, complexity: number) {
     if (this._state != State.Created)
       throw new Error('Game is already playing or finished. You can\'t set player in this game')
     
