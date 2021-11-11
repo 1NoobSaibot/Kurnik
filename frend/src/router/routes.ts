@@ -7,20 +7,12 @@ const routes: RouteRecordRaw[] = [
     children: [
       { path: '', component: () => import('pages/Index.vue') },
       {
-        path: 'game',
-        component: () => import('pages/Room.vue'),
-        children: [
-          { path: 'reversi', component: () => import('pages/games/Reversi.vue') }
-        ]
-      },
-      {
         path: 'room/:id',
         component: () => import('pages/Room.vue'),
         children: [
           { path: 'reversi', component: () => import('pages/games/Reversi.vue') }
         ]
-      },
-      { path: 'rooms', component: () => import('pages/Rooms.vue') }
+      }
     ],
   },
 
