@@ -45,6 +45,9 @@ export default {
 				.then(res => {
 					router.push(`/room/${res.data.id}/${res.data.game.toLowerCase()}`)
 				})
+				.catch(err => {
+					alert(err.message ?? err)
+				})
 		}
 
 		return {

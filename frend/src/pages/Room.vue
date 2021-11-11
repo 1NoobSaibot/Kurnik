@@ -66,12 +66,10 @@ export default defineComponent({
       .on('disconnect', () => {
         console.log('Socket has been disconnected')
       })
-      .on('message', (...args: any[]) => {
-        console.log(args)
+      .on('message', () => {
         fetch()
       })
-      .on('move', (...args: any[]) => {
-        console.log(args)
+      .on('move', () => {
         fetch()
       })
 
