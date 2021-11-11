@@ -7,10 +7,9 @@
 			:columns="columns"
 			row-key="name"
 		>
-			<template v-slot:body-cell-actions>
+			<template v-slot:body-cell-actions="{ row: { id, game } }">
 				<div>
-					<q-btn label="Play" title="Play"/>
-					<q-btn label="Watch"/>
+					<q-btn label="Open" @click="$router.push(`/room/${id}/${game.toLowerCase()}`)"/>
 				</div>
 			</template>
 		</q-table>
@@ -24,8 +23,8 @@ import { RoomHeaderData } from 'src/components/typesFromBkend/common'
 import { axios } from 'src/boot/axios'
 
 const columns = [
-	{ name: 'roomId', label: 'Room ID', align: 'left', sortable: true },
-	{ name: 'game', align: 'center', label: 'Game', field: 'calories', sortable: true },
+	{ name: 'roomId', label: 'Room ID', field: 'id', align: 'left', sortable: true },
+	{ name: 'game', label: 'Game', field: 'game', align: 'center', sortable: true },
 	{ name: 'actions', align: 'right' }
 ]
 
