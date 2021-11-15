@@ -44,10 +44,13 @@ export default {
 		function createRoom () {
 			axios.post<RoomHeaderData>('api/room', { game: 'Reversi' })
 				.then(res => {
-					router.push(`/room/${res.data.id}/${res.data.game.toLowerCase()}`)
+					const { id, game } = res.data
+					router
+						.push(`/room/${id}/${game.toLowerCase()}`)
+						.catch((err) => alert(err))
 				})
 				.catch(err => {
-					alert(err.message ?? err)
+					alert(err)
 				})
 		}
 

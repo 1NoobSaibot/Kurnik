@@ -37,4 +37,18 @@ export class Watcher {
       fn(this._sockets[i])
     }
   }
+
+  public containsWsId (id: string) {
+    for (let i = 0; i < this._sockets.length; i++) {
+      if (this._sockets[i].id === id) {
+        return true
+      }
+    }
+
+    return false
+  }
+
+  public getWsIds (): string[] {
+    return this._sockets.map((socket) => socket.id)
+  }
 }

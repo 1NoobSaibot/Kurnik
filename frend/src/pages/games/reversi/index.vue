@@ -1,25 +1,36 @@
 <template>
 	<div>
-		<div>White({{wCounter}}) Black({{bCounter}}) </div>
-		<board
-			:board="board"
-			@move="$emit('move', $event)"
-		/>
-		{{ gameData }}
+		<div>
+			<div>White({{wCounter}}) Black({{bCounter}}) </div>
+			<board
+				:board="board"
+				@move="$emit('move', $event)"
+			/>
+		</div>
+		<config :room-id="roomId" :socket="socket"/>
 	</div>
 </template>
 
 <script lang='ts'>
-import Board from '../../components/games/reversi/Board.vue'
-import { computed, defineComponent, toRef, Ref } from 'vue'
-import { ReversiCell, GameData } from '../../components/typesFromBkend/games/reversi/GameData'
+import Board from 'src/components/games/reversi/Board.vue'
+import { computed, defineComponent, toRef, Ref, ref } from 'vue'
+import { ReversiCell, GameData } from 'src/components/typesFromBkend/games/reversi/GameData'
+import { Socket } from 'socket.io-client'
+import config from './config.vue'
+
 
 export default defineComponent({
 	components: {
-		Board
+		Board,
+		config
 	},
 	props: {
-		gameData: Object
+		roomId: {
+			type: Number,
+			required: true
+		},
+		gameData: Object,
+		socket: Socket
 	},
 	setup (props) {
 		const gameData = toRef(props, 'gameData') as Ref<GameData>

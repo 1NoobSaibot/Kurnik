@@ -29,13 +29,6 @@ export class RoomsService {
     const room = new Room(id, this._gamesService.createReversi())
     this._rooms.push(room)
 
-    // The game could be created only after connections
-    /*
-    const user = this._usersService.getUserById(0)
-    room.game.setPlayer(0, new Player(user))
-    room.game.setBot(1, 0)
-    room.game.start() */
-
     return room
   }
 

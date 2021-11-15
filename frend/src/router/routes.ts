@@ -10,7 +10,7 @@ const routes: RouteRecordRaw[] = [
         path: 'room/:id',
         component: () => import('pages/Room.vue'),
         children: [
-          { path: 'reversi', component: () => import('pages/games/Reversi.vue') }
+          { path: 'reversi', component: () => import('pages/games/reversi/index.vue') }
         ]
       }
     ],

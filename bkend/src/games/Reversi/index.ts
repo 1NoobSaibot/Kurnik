@@ -27,6 +27,7 @@ export default class Reversi extends Game<ReversiBoard, ReversiMove, ReversiFiel
       history: this.getHistoryData(),
       isGameOver: this.isOver,
       currentPlayer,
+      players: this.getPlayers(),
 
       probs: undefined,
       yourScore: undefined

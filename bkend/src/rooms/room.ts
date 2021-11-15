@@ -14,7 +14,7 @@ export class Room {
   private _watchers: Watcher[] = []
   private _game: Game<IBoard<any, any>, any, IField>
 
-  constructor(id: number, game: Game<IBoard<any, any>, any, IField>) {
+  constructor (id: number, game: Game<IBoard<any, any>, any, IField>) {
     this.id = id
     this._game = game
   }
@@ -47,8 +47,33 @@ export class Room {
     this._watchers.push(new Watcher(ws))
   }
 
-  public async move (args: Record<string, any>): Promise<boolean> {
-    if (this._game.move(args) == false) {
+  public setPlayer (ctx: SetPlayerDto): boolean {
+    const watcher = this._watchers.find((watcher) => watcher.containsWsId(ctx.wsId))
+    if (!watcher) {
+      return false
+    }
+
+    let isAccepted: boolean = false
+    if (ctx.player === 'me') {
+      isAccepted = this._game.addHuman(ctx.side, watcher)
+    } else {
+      isAccepted = this._game.addBot(ctx.side, watcher, ctx.complexity)
+    }
+
+    if (isAccepted) {
+      const players = this._game.getPlayers()
+      this._sendToAll((ws: Socket) => {
+        ws.emit('config-changed', players)
+      })
+      return true
+    }
+
+    return false
+  }
+
+  public async move (wsId: string, args: Record<string, any>): Promise<boolean> {
+    const watcher = this._watchers.find((w) => w.containsWsId(wsId))
+    if (this._game.move(watcher, args) == false) {
       return false
     }
 
@@ -59,10 +84,21 @@ export class Room {
   }
 
   private _wsSendMove () {
+    this._sendToAll((ws) => {
+      ws.emit('move')
+    })
+  }
+
+  private _sendToAll(fn: (ws: Socket) => void) {
     for (let i = 0; i < this._watchers.length; i++) {
-      this._watchers[i].useSocket((ws) => {
-        ws.send('move')
-      })
+      this._watchers[i].useSocket(fn)
     }
   }
+}
+
+export interface SetPlayerDto {
+  wsId: string,
+  player: 'me'|'bot',
+  side: number,
+  complexity?: number
 }

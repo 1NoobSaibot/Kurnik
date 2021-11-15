@@ -1,3 +1,4 @@
+import { PlayerDto } from 'src/games/Player'
 import { Probabilities, Score } from '../../common'
 import ReversiField from './field'
 
@@ -15,6 +16,7 @@ export interface GameData {
   history: ReversiField[]
   isGameOver: boolean
   currentPlayer: ReversiCell
+  players: Record<number, PlayerDto|undefined>
 
   probs: never|Probabilities[][]
   yourScore: never|Score
