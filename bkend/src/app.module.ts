@@ -5,20 +5,11 @@ import { GamesModule } from './games/games.module';
 import { RoomsModule } from './rooms/rooms.module';
 import { UsersModule } from 'src/users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import dbConfig from '../ormconfig'
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: 'localhost',
-      port: 3306,
-      username: 'root',
-      password: 'altf4altctrldel',
-      database: 'kurnik',
-      entities: [],
-      // TODO: Set it FALSE in production
-      synchronize: true,
-    }),
+    TypeOrmModule.forRoot(dbConfig),
     UsersModule,
     RoomsModule,
     GamesModule
