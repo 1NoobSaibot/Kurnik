@@ -42,17 +42,18 @@ export class BaldaService {
 
 		this._words[lang].addWord(word)
 		await this._wordRepository.insert({
-			word: word.toUpperCase(),
-			lang: lang.toLowerCase(),
+			word,
+			lang,
 			length: word.length
 		})
 	}
 
 	public async deleteWord (word: string, lang: string): Promise<void> {
-		await this._wordRepository.delete({
-			word: word.toUpperCase(),
-			lang: lang.toLowerCase()
-		})
+		word = word.toUpperCase()
+		lang = lang.toLowerCase()
+
+		this._words[lang].deleteWord(word)
+		await this._wordRepository.delete({ word, lang })
 	}
 }
 
@@ -70,7 +71,6 @@ class LangData {
 			throw new Error('The word is too short')
 		}
 
-		word = word.toUpperCase()
 		for (let i = 0; i < word.length; i++) {
 			const char = word.charAt(i)
 			if (!this.allowedChars.includes(char)) {
@@ -79,5 +79,9 @@ class LangData {
 		}
 
 		this.words.addWord(word)
+	}
+
+	public deleteWord (word: string) {
+		this.words.deleteWord(word)
 	}
 }
