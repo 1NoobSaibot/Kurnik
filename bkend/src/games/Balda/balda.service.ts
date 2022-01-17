@@ -48,6 +48,13 @@ export class BaldaService {
 		})
 	}
 
+	public isWord (str: string, lang: string): boolean {
+		str = str.toUpperCase()
+		lang = lang.toLowerCase()
+
+		return this._words[lang].words.isWord(str)
+	}
+
 	public async deleteWord (word: string, lang: string): Promise<void> {
 		word = word.toUpperCase()
 		lang = lang.toLowerCase()

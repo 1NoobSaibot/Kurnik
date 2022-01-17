@@ -1,8 +1,9 @@
 
 export class Node {
 	private _next: Record<string, Node> = {}
-	readonly parent: Node|null
-	isWord: boolean
+	readonly parent: Node|null = null
+	// TODO: Find a better name for the property
+	isWord: boolean = false
 
 	constructor (parent: Node|null) {
 		this.parent = parent
@@ -19,6 +20,21 @@ export class Node {
 		const node = new Node(this)
 		this._next[char] = node
 		return node.addWord(rest)
+	}
+
+	// TODO: Find a better name for the function
+	public isItWord (str: string): boolean {
+		if (str.length == 0) {
+			return this.isWord
+		}
+
+		const char = str.slice(0, 1)
+		if (this._next[char]) {
+			const rest = str.replace(char, '')
+			return this._next[char].isItWord(rest)
+		}
+
+		return false
 	}
 
 	public deleteWord (word: string): Node|null {

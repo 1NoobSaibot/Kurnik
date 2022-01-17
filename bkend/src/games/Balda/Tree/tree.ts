@@ -13,6 +13,10 @@ export class Tree {
 		this._lengths[length].push(endNode)
 	}
 
+	public isWord (str: string): boolean {
+		return this._root.isItWord(str)
+	}
+
 	public deleteWord (word: string) {
 		const length = word.length
 		const endNode: Node|null = this._root.deleteWord(word)
