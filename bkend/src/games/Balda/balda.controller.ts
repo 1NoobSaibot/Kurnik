@@ -1,4 +1,4 @@
-import { Controller, Post, Query, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Post, Query, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { BaldaService } from './balda.service';
 
@@ -17,4 +17,14 @@ export class BaldaController {
     await this.baldaService.addWord(word, lang)
 		return res.sendStatus(200)
   }
+
+	@Delete('/word')
+	async deleteWord (
+		@Query('word') word: string,
+		@Query('lang') lang: string,
+		@Res() res: Response
+	) {
+    await this.baldaService.deleteWord(word, lang)
+		return res.sendStatus(200)
+	}
 }
