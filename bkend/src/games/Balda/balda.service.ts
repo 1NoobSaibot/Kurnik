@@ -55,6 +55,10 @@ export class BaldaService {
 		return this._words[lang].words.isWord(str)
 	}
 
+	public getRandomWord (lang: string, length: number): string {
+		return this._words[lang].words.getRandomWord(length)
+	}
+
 	public async deleteWord (word: string, lang: string): Promise<void> {
 		word = word.toUpperCase()
 		lang = lang.toLowerCase()

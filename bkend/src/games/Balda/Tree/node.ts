@@ -37,6 +37,25 @@ export class Node {
 		return false
 	}
 
+	public getWord (): string {
+		return this.parent._buildWord(this, '')
+	}
+
+	private _buildWord (child: Node, end: string): string {
+		for (const key in this._next) {
+			if (this._next[key] === child) {
+				end = key + end
+				break
+			}
+		}
+
+		if (this.parent) {
+			return this.parent._buildWord(this, end)
+		}
+
+		return end
+	}
+
 	public deleteWord (word: string): Node|null {
 		if (word.length == 0) {
 			this.isWord = false

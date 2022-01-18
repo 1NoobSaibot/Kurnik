@@ -17,6 +17,20 @@ export class Tree {
 		return this._root.isItWord(str)
 	}
 
+	public getRandomWord (length: number): string {
+		const words = this._lengths[length]
+		if (!words) {
+			throw new Error('There is no words by length equal ' + length)
+		}
+
+		let index = Math.round(Math.random() * words.length)
+		if (index >= words.length) {
+			index = 0
+		}
+
+		return words[index].getWord()
+	}
+
 	public deleteWord (word: string) {
 		const length = word.length
 		const endNode: Node|null = this._root.deleteWord(word)

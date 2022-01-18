@@ -15,6 +15,15 @@ export class BaldaController {
 		return res.send(this.baldaService.isWord(word, lang))
 	}
 
+	@Get('/random/word')
+	getRandomWord (
+		@Query('length') length: number,
+		@Query('lang') lang: string,
+		@Res() res: Response
+	) {
+		return res.send(this.baldaService.getRandomWord(lang, length))
+	}
+
 	// TODO: check auth with ADMIN role
   @Post('/word')
   async putWord (
