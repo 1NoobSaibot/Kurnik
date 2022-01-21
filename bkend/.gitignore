@@ -35,3 +35,5 @@ lerna-debug.log*
 
 # Copied but not implemented JS code
 *.js
+
+ormconfig.ts
