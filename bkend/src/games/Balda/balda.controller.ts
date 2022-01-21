@@ -1,10 +1,11 @@
 import { Body, Controller, Delete, Get, Post, Query, Res } from '@nestjs/common';
 import { Response } from 'express';
+import { BaldaGame } from './balda.game';
 import { BaldaService } from './balda.service';
 
 @Controller('api/balda')
 export class BaldaController {
-  constructor (private readonly baldaService: BaldaService) {}
+  constructor (private readonly _baldaService: BaldaService) {}
 
 	@Get('/is/word')
 	isWord (
@@ -12,7 +13,7 @@ export class BaldaController {
 		@Query('lang') lang: string,
 		@Res() res: Response
 	) {
-		return res.send(this.baldaService.isWord(word, lang))
+		return res.send(this._baldaService.isWord(word, lang))
 	}
 
 	@Get('/random/word')
@@ -21,7 +22,7 @@ export class BaldaController {
 		@Query('lang') lang: string,
 		@Res() res: Response
 	) {
-		return res.send(this.baldaService.getRandomWord(lang, length))
+		return res.send(this._baldaService.getRandomWord(lang, length))
 	}
 
 	// TODO: check auth with ADMIN role
@@ -31,7 +32,7 @@ export class BaldaController {
 		@Query('lang') lang: string,
 		@Res() res: Response
 	) {
-    await this.baldaService.addWord(word, lang)
+    await this._baldaService.addWord(word, lang)
 		return res.sendStatus(200)
   }
 
@@ -42,7 +43,15 @@ export class BaldaController {
 		@Query('lang') lang: string,
 		@Res() res: Response
 	) {
-    await this.baldaService.deleteWord(word, lang)
+    await this._baldaService.deleteWord(word, lang)
 		return res.sendStatus(200)
+	}
+
+	@Post('/new/game')
+	createGame (
+		@Query('size') size: string,
+		@Query('lang') lang: string
+	) {
+		const game: BaldaGame = this._baldaService.createGame(lang, +size)
 	}
 }
