@@ -5,6 +5,10 @@ import GomokuMove from './move';
 import GomokuRandomBot from './randomBot';
 
 export class Gomoku extends Game<GomokuBoard, GomokuMove, GomokuField> {
+  public get name () {
+    return 'Gomoku'
+  }
+
   makeBot(complexity: number) {
     return new GomokuRandomBot()
   }

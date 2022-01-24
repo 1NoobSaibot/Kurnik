@@ -8,10 +8,7 @@ const routes: RouteRecordRaw[] = [
       { path: '', component: () => import('pages/Index.vue') },
       {
         path: 'room/:id',
-        component: () => import('pages/Room.vue'),
-        children: [
-          { path: 'reversi', component: () => import('pages/games/reversi/index.vue') }
-        ]
+        component: () => import('pages/Room.vue')
       }
     ],
   },

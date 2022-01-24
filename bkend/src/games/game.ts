@@ -18,24 +18,32 @@ export enum State {
 export abstract class Game<B extends IBoard<M, F>, M extends Object, F extends IField> {
   protected _board: B
   private _history: History<F, M>
-  readonly id: number
+  public readonly id: number
   private _state: State = State.Created
   private _players: IPlayer[] = []
+  public readonly roomId
 
-  constructor(id: number) {
+  public onConfigChanged?: (game: Game<any, any, any>) => void
+  public onMoved?: (game: Game<any, any, any>) => void
+  public onGameOver?: (game: Game<any, any, any>) => void
+
+  constructor(id: number, roomId: number) {
     this.id = id
+    this.roomId = roomId
     this._history = new History<F, M>()
   }
 
-  public get isOver() {
+  public abstract get name (): string
+
+  public get isOver () {
     return this._state === State.Ended
   }
 
-  public get isStarted() {
+  public get isStarted () {
     return this._state !== State.Created
   }
 
-  public get state(): State {
+  public get state (): State {
     return this._state
   }
 
@@ -66,8 +74,8 @@ export abstract class Game<B extends IBoard<M, F>, M extends Object, F extends I
     return this._history.getFields()
   }
 
-  public move (watcher: Watcher, args: M): boolean {
-    if (this.currentPlayer.isBot || (this.currentPlayer as Human).watcher !== watcher) {
+  public move (wsId: string, args: M): boolean {
+    if (this.currentPlayer.isBot || (this.currentPlayer as Human).watcher.containsWsId(wsId) == false) {
       return false
     }
     return this._moveAndRegister(args)
@@ -129,9 +137,11 @@ export abstract class Game<B extends IBoard<M, F>, M extends Object, F extends I
     const accepted = this._board.move(args)
 
     if (accepted) {
+      this.onMoved?.call(this, this)
       this._history.push(field, args, player)
       if (this._board.isGameOver()) {
         this._state = State.Ended
+        this.onGameOver?.call(this, this)
       }
     }
 
@@ -149,6 +159,7 @@ export abstract class Game<B extends IBoard<M, F>, M extends Object, F extends I
     }
 
     this._players[side] = player
+    this.onConfigChanged?.call(this, this)
     return true
   }
 }
