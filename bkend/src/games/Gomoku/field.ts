@@ -1,4 +1,3 @@
-import IField from "src/games/IField"
 import { GomokuState, GomokuCell } from "./state";
 
 /**
@@ -8,7 +7,7 @@ import { GomokuState, GomokuCell } from "./state";
  * !WARNING
  * Поле обязано глубоко клонировать состояние
  */
-export default class GomokuField implements IField {
+export default class GomokuField {
 	private readonly _m: GomokuCell[][]
 	public readonly currentPlayer: GomokuCell
 

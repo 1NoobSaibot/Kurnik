@@ -1,4 +1,3 @@
-import IField from './IField'
 import { Watcher } from 'src/rooms/watcher'
 
 export interface IPlayer {
@@ -24,11 +23,11 @@ export class Human implements IPlayer {
   }
 }
 
-export abstract class Bot<F extends IField, Move> implements IPlayer {
+export abstract class Bot<F, Move> implements IPlayer {
   public readonly isBot = true
   public readonly isUser = false
 
-  public abstract getMove (field: F, moves: Move[]): Promise<Move>
+  public abstract getMove (field: F): Promise<Move>
 
   public toPlayerDto (): PlayerDto {
     return {

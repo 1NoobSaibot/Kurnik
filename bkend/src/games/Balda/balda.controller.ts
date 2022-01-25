@@ -1,9 +1,12 @@
-import { Body, Controller, Delete, Get, Post, Query, Res } from '@nestjs/common';
-import { Response } from 'express';
-import { RoomsService } from 'src/rooms/rooms.service';
-import { BaldaGame } from './balda.game';
-import { BaldaService } from './balda.service';
+import { Body, Controller, Delete, Get, Post, Query, Res } from '@nestjs/common'
+import { ApiCreatedResponse, ApiNotFoundResponse, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { Response } from 'express'
+import { RoomsService } from 'src/rooms/rooms.service'
+import { BaldaGame } from './balda.game'
+import { BaldaService } from './balda.service'
+import { BaldaGameDto } from './dtos/balda-game.dto'
 
+@ApiTags('Balda')
 @Controller('api/balda')
 export class BaldaController {
   constructor (
@@ -11,6 +14,8 @@ export class BaldaController {
 		private readonly _roomsService: RoomsService
 	) {}
 
+
+	@ApiResponse({ type: Boolean })
 	@Get('/is/word')
 	isWord (
 		@Query('word') word: string,
@@ -20,6 +25,7 @@ export class BaldaController {
 		return res.send(this._baldaService.isWord(word, lang))
 	}
 
+	@ApiResponse({ type: String })
 	@Get('/random/word')
 	getRandomWord (
 		@Query('length') length: number,
@@ -51,6 +57,8 @@ export class BaldaController {
 		return res.sendStatus(200)
 	}
 
+	@ApiCreatedResponse({ type: BaldaGameDto })
+	@ApiNotFoundResponse()
 	@Post('/new/game')
 	createGame (
 		@Query('roomId') roomId: string,
@@ -63,5 +71,6 @@ export class BaldaController {
 			return res.status(404).send('Room not found')
 		}
 		const game: BaldaGame = this._baldaService.createGame(room.id, lang, +size)
+		res.json(game.getData())
 	}
 }

@@ -1,6 +1,4 @@
-import IField from "src/games/IField"
-
-export class HistoryNode<F extends IField, Move extends Object> {
+export class HistoryNode<F, Move extends Object> {
 	readonly field: F
 	readonly move: Move
 	readonly playerIndex: number
@@ -12,7 +10,7 @@ export class HistoryNode<F extends IField, Move extends Object> {
 	}
 }
 
-export class History<F extends IField, Move> {
+export class History<F, Move> {
 	private _stack: HistoryNode<F, Move>[] = []
 
 	public push(field: F, move: Move, playerIndex: number) {

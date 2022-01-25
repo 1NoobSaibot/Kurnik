@@ -4,7 +4,7 @@ import GomokuMove from "./move";
 
 
 export default class GomokuRandomBot extends Bot<GomokuField, GomokuMove> {
-  async getMove (field: GomokuField, moves: GomokuMove[]) : Promise<GomokuMove> {
-    return moves[0]
+  async getMove (field: GomokuField) : Promise<GomokuMove> {
+    throw new Error('Not Implemented')
   }
 }

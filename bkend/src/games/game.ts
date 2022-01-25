@@ -1,8 +1,7 @@
 import { Bot, Human, IPlayer, PlayerDto } from './Player'
 import { IBoard, SideInfo } from './IBoard'
-import IField from './IField'
-import { History } from 'src/games/history';
-import { Watcher } from 'src/rooms/watcher';
+import { History } from 'src/games/history'
+import { Watcher } from 'src/rooms/watcher'
 
 export enum State {
   Created,
@@ -15,7 +14,7 @@ export enum State {
  * И взаимодействие игровой доски с игроками
  * Оборачивает историю ходов
  */
-export abstract class Game<B extends IBoard<M, F>, M extends Object, F extends IField> {
+export abstract class Game<B extends IBoard<M, F>, M extends Object, F> {
   protected _board: B
   private _history: History<F, M>
   public readonly id: number
@@ -65,8 +64,7 @@ export abstract class Game<B extends IBoard<M, F>, M extends Object, F extends I
     }
     const bot = this.currentPlayer as Bot<F, M>
     const field = this._board.getField()
-    const moves = this._board.getMoves()
-    const move = await bot.getMove(field, moves)
+    const move = await bot.getMove(field)
     return this._moveAndRegister(move)
   }
 

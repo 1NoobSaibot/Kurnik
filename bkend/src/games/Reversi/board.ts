@@ -41,7 +41,7 @@ export default class ReversiBoard implements IBoard<ReversiMove, ReversiField> {
 	 * 
 	 * @returns Index of current side
 	 */
-	public getCurrentPlayer() : number {
+	public getCurrentPlayer () : number {
 		if (this._state.currentPlayer === ReversiCell.White)
 			return 0
 		if (this._state.currentPlayer === ReversiCell.Black)
@@ -53,7 +53,7 @@ export default class ReversiBoard implements IBoard<ReversiMove, ReversiField> {
 		this._state = ReversiState.InitialState()
 	}
 
-	public move(args: ReversiMove) : boolean {
+	public move (args: ReversiMove) : boolean {
 		const { x, y } = args
 		if (this._isGameOver)
 			return false
@@ -73,17 +73,21 @@ export default class ReversiBoard implements IBoard<ReversiMove, ReversiField> {
 		return true
 	}
 
-	public getField(): ReversiField {
+	public getField (): ReversiField {
 		return new ReversiField(this._state)
 	}
 
-	public getMoves(): ReversiMove[] {
+	public getMoves (): ReversiMove[] {
+		const player = this._state.currentPlayer
+		return ReversiBoard.findMoves(this._state.m, player)
+	}
+
+	public static findMoves (m: ReversiCell[][], player: ReversiCell): ReversiMove[] {
 		const moves: ReversiMove[] = []
-		const currentPlayer = this._state.currentPlayer
 
 		for (let x = 0; x < 8; x++) {
 			for (let y = 0; y < 8; y++) {
-				if (this._canMove(x, y, currentPlayer))
+				if (ReversiBoard._canMove(m, x, y, player))
 					moves.push({ x, y })
 			}
 		}
@@ -127,16 +131,18 @@ export default class ReversiBoard implements IBoard<ReversiMove, ReversiField> {
 
 	private _setCell(x: number, y: number) {
 		const currentPlayer = this._state.currentPlayer
-		if (!this._canMove(x, y, currentPlayer))
-			return false
 		const m = this._state.m
+		if (!ReversiBoard._canMove(m, x, y, currentPlayer)) {
+			return false
+		}
+		
 		
 		m[x][y] = currentPlayer
 
 		let res = false
 		for (let a = -1; a < 2; a++) {
 			for (let b = -1; b < 2; b++) {
-				if (this._isLineValid(x, y, a, b, currentPlayer)) {
+				if (ReversiBoard._isLineValid(m, x, y, a, b, currentPlayer)) {
 					_invertLine(a, b)
 					res = true
 				}
@@ -162,9 +168,11 @@ export default class ReversiBoard implements IBoard<ReversiMove, ReversiField> {
 	}
 
 	private _existMove(player: ReversiCell) : boolean {
+		const m = this._state.m
+
 		for (let x = 0; x < 8; x++) {
 			for (let y = 0; y < 8; y++) {
-				if (this._canMove(x, y, player))
+				if (ReversiBoard._canMove(m, x, y, player))
 					return true
 			}
 		}
@@ -172,15 +180,13 @@ export default class ReversiBoard implements IBoard<ReversiMove, ReversiField> {
 		return false
 	}
 
-	private _canMove(x: number, y: number, player: ReversiCell) : boolean {
-		const m = this._state.m
-
+	private static _canMove(m: ReversiCell[][], x: number, y: number, player: ReversiCell) : boolean {
 		if (m[x][y] !== ReversiCell.Empty)
 			return false
 
 		for (let a = -1; a < 2; a++) {
 			for (let b = -1; b < 2; b++) {
-				if (this._isLineValid(x, y, a, b, player))
+				if (ReversiBoard._isLineValid(m, x, y, a, b, player))
 					return true
 			}
 		}
@@ -188,8 +194,7 @@ export default class ReversiBoard implements IBoard<ReversiMove, ReversiField> {
 		return false;
 	}
 
-	private _isLineValid(x: number, y: number, a: number, b: number, player: ReversiCell) : boolean {
-		const m = this._state.m
+	private static _isLineValid(m: ReversiCell[][], x: number, y: number, a: number, b: number, player: ReversiCell) : boolean {
 		let ok = false
 		
 		for (let i = x + a, j = y + b; ; i += a, j += b) {

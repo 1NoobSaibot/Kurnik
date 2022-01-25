@@ -1,10 +1,8 @@
-import IField from "src/games/IField"
-
-class Node<F extends IField, Move> {
+class Node<F, Move> {
   field: F
   move: Move
 }
 
-export class History<F extends IField, M extends object> {
+export class History<F, M> {
   private stack: Array<Node<F, M>>
 }

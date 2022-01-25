@@ -1,6 +1,4 @@
-import IField from "../IField";
-
-export class BaldaField implements IField {
+export class BaldaField {
 	private _m: string[][]
 	private _players: PlayerState[]
 
@@ -16,13 +14,9 @@ export class BaldaField implements IField {
 	public getChar (x: number, y: number): string {
 		return this._m[x][y]
 	}
-
-	getDeterminant(): BigInt {
-		throw new Error('This method is not implemented')
-	}
 }
 
-export interface PlayerState {
+export class PlayerState {
 	words: string[]
 	skipped: boolean
 }

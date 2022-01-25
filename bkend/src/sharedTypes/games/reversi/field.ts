@@ -1,4 +1,5 @@
-import IField from "src/games/IField"
+import ReversiBoard from "src/games/Reversi/Board"
+import ReversiMove from "src/games/Reversi/move"
 import { ReversiState } from "../../../games/Reversi/state"
 import { ReversiCell } from "./GameData"
 
@@ -7,9 +8,9 @@ import { ReversiCell } from "./GameData"
  * А также правило преобразования в определитель
  * 
  * !WARNING
- * Полю обязано глубоко клонировать состояние
+ * Поле обязано глубоко клонировать состояние
  */
-export default class ReversiField implements IField {
+export default class ReversiField {
 	public readonly m: ReversiCell[][]
 	public readonly currentPlayer: ReversiCell
 
@@ -25,11 +26,15 @@ export default class ReversiField implements IField {
 		}
 	}
 
-	public getValue(x: number, y: number): ReversiCell {
+	public getValue (x: number, y: number): ReversiCell {
 		return this.m[x][y]
 	}
 
-	public getDeterminant(): BigInt {
+	public getDeterminant (): BigInt {
 		throw new Error('Not Implemented')
+	}
+
+	public getMoves (): ReversiMove[] {
+		return ReversiBoard.findMoves(this.m, this.currentPlayer)
 	}
 }
