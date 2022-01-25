@@ -8,9 +8,9 @@
         :columns="columns"
         row-key="name"
       >
-        <template v-slot:body-cell-actions="{ row: { id, game } }">
+        <template v-slot:body-cell-actions="{ row: { id } }">
           <div>
-            <q-btn label="Open" @click="$router.push(`/room/${id}/${game.toLowerCase()}`)"/>
+            <q-btn label="Open" @click="$router.push(`/room/${id}`)"/>
           </div>
         </template>
       </q-table>
@@ -44,9 +44,9 @@ export default {
 		function createRoom () {
 			axios.post<RoomHeaderData>('api/room', { game: 'Reversi' })
 				.then(res => {
-					const { id, game } = res.data
+					const { id } = res.data
 					router
-						.push(`/room/${id}/${game.toLowerCase()}`)
+						.push(`/room/${id}`)
 						.catch((err) => alert(err))
 				})
 				.catch(err => {

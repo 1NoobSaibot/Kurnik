@@ -16,17 +16,12 @@ export interface CreateRoomDto {
 export class RoomsService {
   private readonly _rooms: Room[] = []
 
-  constructor (
-    private readonly _gamesService: GamesService,
-    private readonly _usersService: UsersService
-  ) {}
-
   /**
    * @returns {number} Room ID
    */
   public createRoom (dto: CreateRoomDto): Room {
     const id = this._rooms.length
-    const room = new Room(id, this._gamesService.createReversi())
+    const room = new Room(id)
     this._rooms.push(room)
 
     return room

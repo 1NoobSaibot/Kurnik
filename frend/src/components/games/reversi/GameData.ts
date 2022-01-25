@@ -1,4 +1,4 @@
-import { Probabilities, Score } from '../../common'
+import { Probabilities, Score } from '../../typesFromBkend/common'
 
 export enum ReversiCell {
   Empty = 0,

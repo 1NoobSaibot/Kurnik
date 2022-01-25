@@ -1,11 +1,15 @@
 import { Body, Controller, Delete, Get, Post, Query, Res } from '@nestjs/common';
 import { Response } from 'express';
+import { RoomsService } from 'src/rooms/rooms.service';
 import { BaldaGame } from './balda.game';
 import { BaldaService } from './balda.service';
 
 @Controller('api/balda')
 export class BaldaController {
-  constructor (private readonly _baldaService: BaldaService) {}
+  constructor (
+		private readonly _baldaService: BaldaService,
+		private readonly _roomsService: RoomsService
+	) {}
 
 	@Get('/is/word')
 	isWord (
@@ -49,9 +53,15 @@ export class BaldaController {
 
 	@Post('/new/game')
 	createGame (
+		@Query('roomId') roomId: string,
 		@Query('size') size: string,
-		@Query('lang') lang: string
+		@Query('lang') lang: string,
+		@Res() res: Response
 	) {
-		const game: BaldaGame = this._baldaService.createGame(lang, +size)
+		const room = this._roomsService.getRoomById(+roomId)
+		if (!room) {
+			return res.status(404).send('Room not found')
+		}
+		const game: BaldaGame = this._baldaService.createGame(room.id, lang, +size)
 	}
 }

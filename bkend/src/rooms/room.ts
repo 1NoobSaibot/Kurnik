@@ -1,34 +1,25 @@
-import { Game } from "src/games/game"
-import { IBoard } from "src/games/IBoard"
-import IField from "src/games/IField"
 import { Watcher } from "./watcher"
 import { Socket } from 'socket.io'
-import { UserDto } from "src/users/UserDtos"
+import { UserDto } from 'src/users/UserDtos'
+import { Game } from 'src/games/game'
 
 export class Room {
   public readonly id: number
   public ownerId: number
-  public get game (): Game<IBoard<any, any>, any, IField> {
+  public get game (): GameInfo|null {
     return this._game
   }
   private _watchers: Watcher[] = []
-  private _game: Game<IBoard<any, any>, any, IField>
+  private _game?: GameInfo = null
 
-  constructor (id: number, game: Game<IBoard<any, any>, any, IField>) {
+  constructor (id: number) {
     this.id = id
-    this._game = game
-  }
-
-  public getDataForPlayer(): object {
-    return {
-      game: this._game ? this._game.getData() : undefined
-    }
   }
 
   public getDataForUser(): object {
     return {
       id: this.id,
-      game: this._game ? this._game.constructor.name : undefined
+      game: this._game
     }
   }
 
@@ -47,46 +38,37 @@ export class Room {
     this._watchers.push(new Watcher(ws))
   }
 
-  public setPlayer (ctx: SetPlayerDto): boolean {
-    const watcher = this._watchers.find((watcher) => watcher.containsWsId(ctx.wsId))
-    if (!watcher) {
-      return false
-    }
+  public getWatcherByWsId (wsId: string): Watcher {
+    return this._watchers.find((watcher) => watcher.containsWsId(wsId))
+  }
 
-    let isAccepted: boolean = false
-    if (ctx.player === 'me') {
-      isAccepted = this._game.addHuman(ctx.side, watcher)
-    } else {
-      isAccepted = this._game.addBot(ctx.side, watcher, ctx.complexity)
-    }
+  public async onMove () {
+    
+  }
 
-    if (isAccepted) {
-      const players = this._game.getPlayers()
+  public setGame (game: Game<any, any, any>) {
+    // TODO: Check if previous game didn't finish
+    // TODO: listen to events of game
+    game.onConfigChanged = (g) => {
+      const players = g.getPlayers()
       this._sendToAll((ws: Socket) => {
         ws.emit('config-changed', players)
       })
-      return true
     }
-
-    return false
-  }
-
-  public async move (wsId: string, args: Record<string, any>): Promise<boolean> {
-    const watcher = this._watchers.find((w) => w.containsWsId(wsId))
-    if (this._game.move(watcher, args) == false) {
-      return false
+    game.onMoved = (g) => {
+      this._sendToAll((ws) => {
+        ws.emit('move')
+      })
     }
-
-    this._wsSendMove()
-    await this._game.next()
-    this._wsSendMove()
-    return true
-  }
-
-  private _wsSendMove () {
-    this._sendToAll((ws) => {
-      ws.emit('move')
-    })
+    game.onGameOver = (g) => {
+      this._sendToAll((ws) => {
+        ws.emit('game-over')
+      })
+    }
+    this._game = {
+      id: game.id,
+      name: game.name
+    }
   }
 
   private _sendToAll(fn: (ws: Socket) => void) {
@@ -96,9 +78,7 @@ export class Room {
   }
 }
 
-export interface SetPlayerDto {
-  wsId: string,
-  player: 'me'|'bot',
-  side: number,
-  complexity?: number
+export interface GameInfo {
+  name: string,
+  id: number
 }

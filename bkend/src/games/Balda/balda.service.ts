@@ -74,18 +74,18 @@ export class BaldaService {
 		return char.length == 1 && langData.allowedChars.includes(char)
 	}
 
-	public createGame(lang: string, size: number): BaldaGame {
+	public createGame (roomId: number, lang: string, size: number): BaldaGame {
 		let game = null
 		for (let i = 0; i < this._games.length; i++) {
 			if (!this._games[i]) {
-				game = new BaldaGame(i, this, lang, size)
+				game = new BaldaGame(i, roomId, this, lang, size)
 				this._games[i] = game
 			}
 		}
 
 		if (!game) {
 			const id = this._games.length
-			game = new BaldaGame(id, this, lang, size)
+			game = new BaldaGame(id, roomId, this, lang, size)
 			this._games.push(game)
 		}
 

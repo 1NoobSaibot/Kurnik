@@ -14,9 +14,10 @@
 
 <script lang='ts'>
 import { defineComponent } from 'vue'
-import { ReversiCell } from '../../typesFromBkend/games/reversi/GameData'
+import { ReversiCell } from './GameData'
 
 export default defineComponent({
+	name: 'ReversiBoard',
 	props: {
 		board: {
 			type: Array,

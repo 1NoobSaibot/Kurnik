@@ -7,11 +7,15 @@ import ReversiRandomBot from './randomBot'
 import { GameData } from '../../sharedTypes/games/reversi/GameData'
 
 export default class Reversi extends Game<ReversiBoard, ReversiMove, ReversiField> {
-  constructor(id: number) {
-    super(id)
+  constructor(id: number, roomId: number) {
+    super(id, roomId)
     this._board = new ReversiBoard()
   }
   
+  public get name () {
+    return 'Reversi'
+  }
+
   makeBot (complexity: number): Bot<ReversiField, ReversiMove> {
     if (complexity === 0)
       return new ReversiRandomBot()

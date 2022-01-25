@@ -2,14 +2,17 @@
   <q-page style="padding: 16px 16px">
     <h6>It's a room layout. Room ID: {{ roomId }}</h6>
     <div style="border: 1px black solid">
-      <router-view
-        v-bind="{
-          gameData: roomData.game,
-          socket,
-          roomId
-        }"
-        @move="onGameMove"
-        @players-changed="onPlayersChanged"
+      <game-select
+        v-if="gameComponent === undefined"
+        :room-id="roomId"
+        :wsId="socket.id"
+        @created="onGameCreated"
+      />
+      <component
+        v-else
+        v-bind:is="gameComponent"
+        :socket="socket"
+        :id="gameId"
       />
     </div>
   </q-page>
@@ -19,14 +22,23 @@
 import axios from 'axios'
 import { computed, defineComponent, ref, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
-import { GameData } from '../components/typesFromBkend/games/reversi/GameData'
 import { io, Socket } from 'socket.io-client'
+import ReversiGame from 'components/games/reversi/ReversiGame.vue'
+import GameSelect from 'components/GameSelect.vue'
+
+interface GameData {
+  id: number, name: string
+}
 
 interface RoomData {
   game?: GameData
 }
 
 export default defineComponent({
+  components: {
+    GameSelect,
+    ReversiGame
+  },
   setup () {
     const route = useRoute()
     const roomId = computed<number>(() => {
@@ -35,19 +47,16 @@ export default defineComponent({
     const roomData = ref<RoomData>({
       game: undefined
     })
-    
-    const onGameMove = async (args: Record<string, string|number|boolean>) => {
-      try {
-        const { data: game } = await axios
-          .put<Record<string, unknown>>(`api/room/${roomId.value}/game/move`, {
-            ...args,
-            wsId: socket.id
-          })
-        roomData.value = Object.assign({}, roomData.value, { game })
-      } catch (e) {
-        console.error(e)
+    const gameId = computed<number|undefined>(() => {
+      return roomData.value.game?.id
+    })
+    const gameComponent = computed<string|undefined>(() => {
+      const name = roomData.value.game?.name
+      if (name) {
+        return name + 'Game'
       }
-    }
+      return undefined
+    })
 
     const fetch = () => {
       axios.get<RoomData>(`api/room/${roomId.value}`)
@@ -61,6 +70,7 @@ export default defineComponent({
 
     const socket: Socket = io('/room', {
       transports: ['websocket'],
+      // TODO: Use Authorization
       query: { userId: '7', roomId: roomId.value.toString() }
     })
     socket
@@ -71,19 +81,22 @@ export default defineComponent({
       .on('connect_error', (...args) => {
         console.log('Connect ERROR', args)
       })
-      .on('move', () => {
-        fetch()
-      })
 
     onBeforeUnmount(() => {
       socket.disconnect()
     })
 
+    function onGameCreated (game: GameData) {
+      roomData.value = Object.assign({}, roomData.value, { game })
+    }
+
     return {
-      onGameMove,
       roomData,
       roomId,
-      socket
+      socket,
+      gameId,
+      gameComponent,
+      onGameCreated
     }
   }
 })

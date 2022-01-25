@@ -35,15 +35,16 @@ interface Player {
 }
 
 export default defineComponent({
+	name: 'ReversiConfig',
 	props: {
-		roomId: {
+		gameId: {
 			type: Number,
 			required: true
 		},
 		socket: Socket
 	},
-	setup(props) {
-		const roomId = toRef(props, 'roomId') as Ref<number>
+	setup(props, { emit }) {
+		const gameId = toRef(props, 'gameId') as Ref<number>
 		const socket = toRef(props, 'socket') as Ref<Socket>
 		const whitePlayer = ref<string>('')
 		const blackPlayer = ref<string>('')
@@ -77,15 +78,16 @@ export default defineComponent({
 		}
 		
 		function setPlayer (who: 'me'|'bot', side: number) {
-			axios.post<void>(`api/room/${roomId.value}/set/player`, {
+			axios.post<void>(`api/reversi/${gameId.value}/set/player`, {
 				wsId: wsId.value,
 				player: who,
 				side
 			})
 		}
 
-		function startGame () {
-			axios.post<void>(`api/room/${roomId.value}/game/start`)
+		async function startGame () {
+			await axios.post<void>(`api/reversi/${gameId.value}/start`)
+			emit('started')
 		}
 
 		return {

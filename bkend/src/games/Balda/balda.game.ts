@@ -6,9 +6,13 @@ import { BaldaMove } from "./balda.move";
 import { BaldaService } from "./balda.service";
 
 export class BaldaGame extends Game<BaldaBoard, BaldaMove, BaldaField> {
-	constructor (id: number, service: BaldaService, lang: string, size: number) {
-		super(id)
+	constructor (id: number, roomId: number, service: BaldaService, lang: string, size: number) {
+		super(id, roomId)
 		this._board = new BaldaBoard(service, lang, size)
+	}
+
+	public get name () {
+		return 'Balda'
 	}
 
 	getData() {

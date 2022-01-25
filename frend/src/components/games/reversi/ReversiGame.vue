@@ -4,39 +4,44 @@
 			<div>White({{wCounter}}) Black({{bCounter}}) </div>
 			<board
 				:board="board"
-				@move="$emit('move', $event)"
+				@move="onMove"
 			/>
 		</div>
-		<config :room-id="roomId" :socket="socket"/>
+		<config :game-id="id" :socket="socket"/>
 	</div>
 </template>
 
 <script lang='ts'>
-import Board from 'src/components/games/reversi/Board.vue'
+import Board from 'src/components/games/reversi/ReversiBoard.vue'
 import { computed, defineComponent, toRef, Ref, ref } from 'vue'
-import { ReversiCell, GameData } from 'src/components/typesFromBkend/games/reversi/GameData'
+import { ReversiCell, GameData } from 'components/games/reversi/GameData'
 import { Socket } from 'socket.io-client'
-import config from './config.vue'
+import Config from './ReversiConfig.vue'
+import { ReversiMove } from './ReversiMove'
+import { axios } from 'src/boot/axios'
 
 
 export default defineComponent({
+	name: 'ReversiGame',
 	components: {
 		Board,
-		config
+		Config
 	},
 	props: {
-		roomId: {
-			type: Number,
-			required: true
-		},
-		gameData: Object,
+		id: Number,
 		socket: Socket
 	},
 	setup (props) {
-		const gameData = toRef(props, 'gameData') as Ref<GameData>
+		const socket = toRef(props, 'socket') as Ref<Socket>
+		const id = toRef(props, 'id') as Ref<number>
+		socket.value
+      .on('move', fetch)
+
+		const gameData = ref<GameData|null>(null)
 		const board = computed<ReversiCell[][]>(() => {
-			if (gameData.value)
+			if (gameData.value) {
 				return gameData.value.m
+			}
 			return [
 				[0, 0, 0, 0, 0, 0, 0, 0],
 				[0, 0, 0, 0, 0, 0, 0, 0],
@@ -66,10 +71,35 @@ export default defineComponent({
 			return sum
 		}
 
+		async function fetch() {
+			const { data } = await axios.get<GameData>(`api/reversi/${id.value}`, {
+				params: {
+					wsId: socket.value.id
+				}
+			})
+			gameData.value = data
+		}
+
+		async function onMove (args: ReversiMove) {
+      try {
+        const { data } = await axios
+          .put<GameData>(`api/reversi/${id.value}/move`, {
+            ...args,
+            wsId: socket.value.id
+          })
+        gameData.value = data
+      } catch (e) {
+        console.error(e)
+      }
+    }
+
+		fetch()
+
 		return {
 			board,
 			bCounter,
-			wCounter
+			wCounter,
+			onMove
 		}
 	}
 })
