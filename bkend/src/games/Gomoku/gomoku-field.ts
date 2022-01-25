@@ -1,4 +1,4 @@
-import { GomokuState, GomokuCell } from "./state";
+import { GomokuState, GomokuCell } from "./gomoku-state";
 
 /**
  * Класс поле хранит текущее состояние доски

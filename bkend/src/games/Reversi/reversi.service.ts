@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import Reversi from ".";
+import Reversi from "./reversi-game";
 
 @Injectable()
 export class ReversiService {

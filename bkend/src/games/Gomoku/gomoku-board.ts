@@ -1,8 +1,8 @@
 import { IBoard, SideInfo } from "src/games/IBoard"
-import GomokuField from "./field"
-import GomokuMove from "./move"
-import { GomokuCell, GomokuState } from "./state"
-import { Score } from "../../sharedTypes/common"
+import GomokuField from "./gomoku-field"
+import GomokuMove from "./gomoku-move"
+import { GomokuCell, GomokuState } from "./gomoku-state"
+import { Score } from "../common"
 
 const FIELD_WEIGHT = 19
 

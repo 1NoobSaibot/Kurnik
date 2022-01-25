@@ -1,4 +1,4 @@
-import { ReversiCell } from "../../sharedTypes/games/reversi/GameData"
+import { ReversiCell } from "./dtos/reversi-game.dto"
 
 export class ReversiState {
   m: ReversiCell[][]

@@ -1,4 +1,4 @@
-import { Score } from "src/sharedTypes/common";
+import { Score } from "src/games/common";
 import { IBoard, SideInfo } from "../IBoard";
 import { BaldaField, PlayerState } from "./balda.field";
 import { BaldaMove, Point } from "./balda.move";

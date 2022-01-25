@@ -1,7 +1,7 @@
-import ReversiBoard from "src/games/Reversi/Board"
-import ReversiMove from "src/games/Reversi/move"
-import { ReversiState } from "../../../games/Reversi/state"
-import { ReversiCell } from "./GameData"
+import ReversiBoard from "src/games/Reversi/reversi-board"
+import ReversiMove from "src/games/Reversi/reversi-move"
+import { ReversiState } from "./reversi-state"
+import { ReversiCell } from "./dtos/reversi-game.dto"
 
 /**
  * Класс поле хранит текущее состояние доски

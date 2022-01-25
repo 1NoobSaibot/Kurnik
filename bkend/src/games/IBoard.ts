@@ -1,4 +1,4 @@
-import { Score } from '../sharedTypes/common'
+import { Score } from './common'
 
 export class SideInfo {
 	index: number

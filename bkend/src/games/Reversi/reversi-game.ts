@@ -1,12 +1,12 @@
 import { Bot } from 'src/games/Player'
 import { Game } from 'src/games/game'
-import ReversiBoard from './Board'
-import ReversiField from '../../sharedTypes/games/reversi/field'
-import ReversiMove from './move'
+import ReversiBoard from './reversi-board'
+import ReversiField from './reversi-field'
+import ReversiMove from './reversi-move'
 import ReversiRandomBot from './randomBot'
-import { GameData } from '../../sharedTypes/games/reversi/GameData'
+import { GameData } from './dtos/reversi-game.dto'
 
-export default class Reversi extends Game<ReversiBoard, ReversiMove, ReversiField> {
+export default class ReversiGame extends Game<ReversiBoard, ReversiMove, ReversiField> {
   constructor(id: number, roomId: number) {
     super(id, roomId)
     this._board = new ReversiBoard()

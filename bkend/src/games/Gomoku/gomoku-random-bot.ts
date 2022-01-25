@@ -1,6 +1,6 @@
 import { Bot } from "src/games/Player";
-import GomokuField from "./field";
-import GomokuMove from "./move";
+import GomokuField from "./gomoku-field";
+import GomokuMove from "./gomoku-move";
 
 
 export default class GomokuRandomBot extends Bot<GomokuField, GomokuMove> {

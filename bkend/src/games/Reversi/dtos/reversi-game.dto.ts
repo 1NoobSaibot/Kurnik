@@ -1,6 +1,6 @@
 import { PlayerDto } from 'src/games/Player'
 import { Probabilities, Score } from '../../common'
-import ReversiField from './field'
+import ReversiField from '../reversi-field'
 
 export enum ReversiCell {
   Empty = 0,

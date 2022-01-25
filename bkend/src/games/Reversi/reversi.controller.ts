@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, Post, Put, Res } from "@nestjs/common";
 import { Response } from "express";
 import { RoomsService } from "src/rooms/rooms.service";
-import ReversiMove from "./move";
+import ReversiMove from "./reversi-move";
 import { ReversiService } from "./reversi.service";
 import { SetPlayerDto } from "./dtos/set-player.dto";
 import { CreateGameDto } from "./dtos/create-game.dto";
