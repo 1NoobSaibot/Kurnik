@@ -2,6 +2,7 @@ import { Bot, Human, IPlayer, PlayerDto } from './Player'
 import { IBoard, SideInfo } from './IBoard'
 import { History } from 'src/games/history'
 import { Watcher } from 'src/rooms/watcher'
+import { Room } from 'src/rooms/room'
 
 export enum State {
   Created,
@@ -20,16 +21,14 @@ export abstract class Game<B extends IBoard<M, F>, M extends Object, F> {
   public readonly id: number
   private _state: State = State.Created
   private _players: IPlayer[] = []
-  public readonly roomId
+  public readonly room: Room
 
-  public onConfigChanged?: (game: Game<any, any, any>) => void
-  public onMoved?: (game: Game<any, any, any>) => void
-  public onGameOver?: (game: Game<any, any, any>) => void
-
-  constructor(id: number, roomId: number) {
+  constructor(id: number, room: Room) {
     this.id = id
-    this.roomId = roomId
+    this.room = room
+    room.setGame(this)
     this._history = new History<F, M>()
+    room.emitGameEvent('game-created', id)
   }
 
   public abstract get name (): string
@@ -52,6 +51,7 @@ export abstract class Game<B extends IBoard<M, F>, M extends Object, F> {
     }
     if (this.checkConfig()) {
       this._state = State.Started
+      this.room.emitGameEvent('game-started')
       return true
     }
   
@@ -135,11 +135,11 @@ export abstract class Game<B extends IBoard<M, F>, M extends Object, F> {
     const accepted = this._board.move(args)
 
     if (accepted) {
-      this.onMoved?.call(this, this)
+      this.room.emitGameEvent('game-moved')
       this._history.push(field, args, player)
       if (this._board.isGameOver()) {
         this._state = State.Ended
-        this.onGameOver?.call(this, this)
+        this.room.emitGameEvent('game-over')
       }
     }
 
@@ -157,7 +157,7 @@ export abstract class Game<B extends IBoard<M, F>, M extends Object, F> {
     }
 
     this._players[side] = player
-    this.onConfigChanged?.call(this, this)
+    this.room.emitGameEvent('game-config', this.getPlayers())
     return true
   }
 }

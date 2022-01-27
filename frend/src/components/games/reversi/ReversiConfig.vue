@@ -1,6 +1,9 @@
 <template>
 	<q-card>
-		<q-card-section style="width: 300px">
+		<q-card-section
+			v-if="gameState === 'created'"
+			style="width: 300px"
+		>
 			<q-select
 				:model-value="whitePlayer"
 				label="White"
@@ -15,6 +18,12 @@
 			/>
 			<q-btn label="Start" color="primary" @click="startGame"/>
 		</q-card-section>
+		<q-card-section
+			v-else-if="gameState === 'ended'"
+			style="width: 300px"
+		>
+			<q-btn label="New Game" color="primary" @click="restartGame"/>
+		</q-card-section>
 	</q-card>
 </template>
 
@@ -22,11 +31,6 @@
 import { computed, defineComponent, toRef, Ref, ref } from 'vue'
 import { axios } from 'src/boot/axios'
 import { Socket } from 'socket.io-client'
-
-const options = [
-	'Me',
-	'Bot'
-]
 
 interface Player {
 	isBot: boolean,
@@ -41,7 +45,11 @@ export default defineComponent({
 			type: Number,
 			required: true
 		},
-		socket: Socket
+		socket: Socket,
+		gameState: {
+			type: String,
+			required: true
+		}
 	},
 	setup(props, { emit }) {
 		const gameId = toRef(props, 'gameId') as Ref<number>
@@ -53,7 +61,7 @@ export default defineComponent({
 		})
 
 		socket.value
-			.on('config-changed', (players: (Player|undefined)[]) => {
+			.on('game-config', (players: (Player|undefined)[]) => {
 				whitePlayer.value = player2Option(players[0])
 				blackPlayer.value = player2Option(players[1])
 			})
@@ -83,6 +91,7 @@ export default defineComponent({
 				player: who,
 				side
 			})
+				.catch((e) => { throw e })
 		}
 
 		async function startGame () {
@@ -90,9 +99,17 @@ export default defineComponent({
 			emit('started')
 		}
 
+		async function restartGame () {
+			await axios.post<{ gameId: number }>(`api/reversi/${gameId.value}/restart`, {
+				wsId: wsId.value
+			})
+			// Note: The room should get new game-Id by WS
+		}
+
 		return {
 			whitePlayer,
 			blackPlayer,
+			restartGame,
 			setPlayer,
 			startGame
 		}

@@ -5,10 +5,11 @@ import ReversiField from './reversi-field'
 import ReversiMove from './reversi-move'
 import ReversiRandomBot from './randomBot'
 import { GameData } from './dtos/reversi-game.dto'
+import { Room } from 'src/rooms/room'
 
 export default class ReversiGame extends Game<ReversiBoard, ReversiMove, ReversiField> {
-  constructor(id: number, roomId: number) {
-    super(id, roomId)
+  constructor(id: number, room: Room) {
+    super(id, room)
     this._board = new ReversiBoard()
   }
   

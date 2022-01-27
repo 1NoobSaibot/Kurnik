@@ -81,6 +81,9 @@ export default defineComponent({
       .on('connect_error', (...args) => {
         console.log('Connect ERROR', args)
       })
+			.on('game-created', () => {
+				fetch()
+			})
 
     onBeforeUnmount(() => {
       socket.disconnect()

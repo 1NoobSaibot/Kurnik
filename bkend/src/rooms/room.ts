@@ -7,10 +7,16 @@ export class Room {
   public readonly id: number
   public ownerId: number
   public get game (): GameInfo|null {
-    return this._game
+    if (!this._game) {
+      return null
+    }
+    return {
+      id: this._game.id,
+      name: this._game.name
+    }
   }
   private _watchers: Watcher[] = []
-  private _game?: GameInfo = null
+  private _game?: Game<any, any, any>
 
   constructor (id: number) {
     this.id = id
@@ -19,7 +25,7 @@ export class Room {
   public getDataForUser(): object {
     return {
       id: this.id,
-      game: this._game
+      game: this.game
     }
   }
 
@@ -42,33 +48,15 @@ export class Room {
     return this._watchers.find((watcher) => watcher.containsWsId(wsId))
   }
 
-  public async onMove () {
-    
+  public setGame (game: Game<any, any, any>) {
+    if (this._game && this._game.isOver == false) {
+      throw new Error('Current game is not finished')
+    }
+    this._game = game
   }
 
-  public setGame (game: Game<any, any, any>) {
-    // TODO: Check if previous game didn't finish
-    // TODO: listen to events of game
-    game.onConfigChanged = (g) => {
-      const players = g.getPlayers()
-      this._sendToAll((ws: Socket) => {
-        ws.emit('config-changed', players)
-      })
-    }
-    game.onMoved = (g) => {
-      this._sendToAll((ws) => {
-        ws.emit('move')
-      })
-    }
-    game.onGameOver = (g) => {
-      this._sendToAll((ws) => {
-        ws.emit('game-over')
-      })
-    }
-    this._game = {
-      id: game.id,
-      name: game.name
-    }
+  public emitGameEvent (event: GameEvent, ...args: any[]) {
+    this._sendToAll((ws) => ws.emit(event, ...args))
   }
 
   private _sendToAll(fn: (ws: Socket) => void) {
@@ -82,3 +70,9 @@ export interface GameInfo {
   name: string,
   id: number
 }
+
+export type GameEvent = 'game-created'
+  |'game-config'
+  |'game-started'
+  |'game-moved'
+  |'game-over'

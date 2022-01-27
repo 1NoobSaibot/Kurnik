@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common"
 import { InjectRepository } from "@nestjs/typeorm"
+import { Room } from "src/rooms/room"
 import { Repository } from "typeorm"
 import { BaldaGame } from "./balda.game"
 import { Tree } from "./Tree/tree"
@@ -74,18 +75,18 @@ export class BaldaService {
 		return char.length == 1 && langData.allowedChars.includes(char)
 	}
 
-	public createGame (roomId: number, lang: string, size: number): BaldaGame {
+	public createGame (room: Room, lang: string, size: number): BaldaGame {
 		let game = null
 		for (let i = 0; i < this._games.length; i++) {
 			if (!this._games[i]) {
-				game = new BaldaGame(i, roomId, this, lang, size)
+				game = new BaldaGame(i, room, this, lang, size)
 				this._games[i] = game
 			}
 		}
 
 		if (!game) {
 			const id = this._games.length
-			game = new BaldaGame(id, roomId, this, lang, size)
+			game = new BaldaGame(id, room, this, lang, size)
 			this._games.push(game)
 		}
 

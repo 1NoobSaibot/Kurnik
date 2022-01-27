@@ -32,8 +32,7 @@ export class ReversiController {
 		}
 
 		// TODO: Create a game
-		const game = this._reversiService.createGame(roomId)
-		room.setGame(game)
+		const game = this._reversiService.createGame(room)
 		return res.json({ gameId: game.id })
 	}
 
@@ -57,7 +56,7 @@ export class ReversiController {
 		@Res() res: Response
 	) {
 		const game = this._reversiService.getGameById(+id)
-		const room = this._roomService.getRoomById(game.roomId)
+		const room = this._roomService.getRoomById(game.room.id)
 		const watcher = room.getWatcherByWsId(body.wsId)
 
 		if (!watcher) {
@@ -117,5 +116,37 @@ export class ReversiController {
 		} while (moved)
 
 		response.json(game.getData())
+	}
+
+	// TODO: Check auth and role in room before start the game
+	@Post(':id/restart')
+	async restartGame (
+		@Param('id') id: string,
+		@Body() body: { wsId: string },
+		@Res() res: Response
+	) {
+		const game = this._reversiService.getGameById(+id)
+		if (!game) {
+			res.status(404).send('Game is not found')
+		}
+		if (!game.isOver) {
+			throw new Error('Game is not over yet')
+		}
+
+		// TODO: Get config from old game and set it to new one
+		const roomId = game.room.id
+		const room: Room = this._roomService.getRoomById(roomId)
+		if (!room) {
+			return res.status(404).send('Cannot find room ' + roomId)
+		}
+		// TODO: Check permission correctly
+		const watcher = room.getWatcherByWsId(body.wsId)
+		if (!watcher) {
+			return res.status(403).send('You can\'t create game here')
+		}
+
+		// TODO: Create a game
+		const newGame = this._reversiService.createGame(room)
+		return res.json({ gameId: newGame.id })
 	}
 }

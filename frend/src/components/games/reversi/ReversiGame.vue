@@ -7,7 +7,11 @@
 				@move="onMove"
 			/>
 		</div>
-		<config :game-id="id" :socket="socket"/>
+		<config
+			:game-id="id"
+			:socket="socket"
+			:game-state="state"
+		/>
 	</div>
 </template>
 
@@ -20,6 +24,7 @@ import Config from './ReversiConfig.vue'
 import { ReversiMove } from './ReversiMove'
 import { axios } from 'src/boot/axios'
 
+type GameState = 'created'|'started'|'ended'
 
 export default defineComponent({
 	name: 'ReversiGame',
@@ -34,8 +39,15 @@ export default defineComponent({
 	setup (props) {
 		const socket = toRef(props, 'socket') as Ref<Socket>
 		const id = toRef(props, 'id') as Ref<number>
+		const state = ref<GameState>('created')
 		socket.value
-      .on('move', fetch)
+      .on('game-moved', fetch)
+			.on('game-started', () => {
+				state.value = 'started'
+			})
+			.on('game-over', () => {
+				state.value = 'ended'
+			})
 
 		const gameData = ref<GameData|null>(null)
 		const board = computed<ReversiCell[][]>(() => {
@@ -99,6 +111,7 @@ export default defineComponent({
 			board,
 			bCounter,
 			wCounter,
+			state,
 			onMove
 		}
 	}

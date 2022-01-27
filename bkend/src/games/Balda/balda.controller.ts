@@ -70,7 +70,7 @@ export class BaldaController {
 		if (!room) {
 			return res.status(404).send('Room not found')
 		}
-		const game: BaldaGame = this._baldaService.createGame(room.id, lang, +size)
+		const game: BaldaGame = this._baldaService.createGame(room, lang, +size)
 		res.json(game.getData())
 	}
 }

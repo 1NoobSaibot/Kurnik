@@ -40,6 +40,7 @@ export default {
 				const { data } = res
 				rooms.value = data
 			})
+			.catch((e) => { throw e })
 
 		function createRoom () {
 			axios.post<RoomHeaderData>('api/room', { game: 'Reversi' })
