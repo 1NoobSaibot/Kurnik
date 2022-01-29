@@ -3,6 +3,7 @@ import { IBoard, SideInfo } from './IBoard'
 import { History } from 'src/games/history'
 import { Watcher } from 'src/rooms/watcher'
 import { Room } from 'src/rooms/room'
+import { EventEmitter } from 'events'
 
 export enum State {
   Created,
@@ -15,20 +16,21 @@ export enum State {
  * И взаимодействие игровой доски с игроками
  * Оборачивает историю ходов
  */
-export abstract class Game<B extends IBoard<M, F>, M extends Object, F> {
+export abstract class Game<B extends IBoard<M, F>, M, F> {
   protected _board: B
   private _history: History<F, M>
   public readonly id: number
   private _state: State = State.Created
   private _players: IPlayer[] = []
   public readonly room: Room
+  private readonly _emitter: EventEmitter = new EventEmitter()
 
   constructor(id: number, room: Room) {
     this.id = id
     this.room = room
     room.setGame(this)
     this._history = new History<F, M>()
-    room.emitGameEvent('game-created', id)
+    this._emitter.emit('created', id)
   }
 
   public abstract get name (): string
@@ -51,7 +53,7 @@ export abstract class Game<B extends IBoard<M, F>, M extends Object, F> {
     }
     if (this.checkConfig()) {
       this._state = State.Started
-      this.room.emitGameEvent('game-started')
+      this._emitter.emit('started')
       return true
     }
   
@@ -125,6 +127,10 @@ export abstract class Game<B extends IBoard<M, F>, M extends Object, F> {
 
   public abstract getData() : any
 
+  public addListener (event: GameEvent, fn: (...args: any[]) => void) {
+    this._emitter.addListener(event, fn)
+  }
+
   private _moveAndRegister (args: M): boolean {
     if (this._state != State.Started) {
       return false
@@ -135,11 +141,11 @@ export abstract class Game<B extends IBoard<M, F>, M extends Object, F> {
     const accepted = this._board.move(args)
 
     if (accepted) {
-      this.room.emitGameEvent('game-moved')
+      this._emitter.emit('moved')
       this._history.push(field, args, player)
       if (this._board.isGameOver()) {
         this._state = State.Ended
-        this.room.emitGameEvent('game-over')
+        this._emitter.emit('over')
       }
     }
 
@@ -157,7 +163,11 @@ export abstract class Game<B extends IBoard<M, F>, M extends Object, F> {
     }
 
     this._players[side] = player
-    this.room.emitGameEvent('game-config', this.getPlayers())
+
+    // TODO: Seems like here we should give CONFIG, not only Players
+    this._emitter.emit('config', this.getPlayers())
     return true
   }
 }
+
+export type GameEvent = 'created'|'config'|'started'|'moved'|'over'

@@ -53,9 +53,24 @@ export class Room {
       throw new Error('Current game is not finished')
     }
     this._game = game
+    game.addListener('created', (id) => {
+      this._emitGameEvent('game-created', id)
+    })
+    game.addListener('config', (conf) => {
+      this._emitGameEvent('game-config', conf)
+    })
+    game.addListener('started', () => {
+      this._emitGameEvent('game-started')
+    })
+    game.addListener('moved', () => {
+      this._emitGameEvent('game-moved')
+    })
+    game.addListener('over', () => {
+      this._emitGameEvent('game-over')
+    })
   }
 
-  public emitGameEvent (event: GameEvent, ...args: any[]) {
+  private _emitGameEvent (event: GameEvent, ...args: any[]) {
     this._sendToAll((ws) => ws.emit(event, ...args))
   }
 
