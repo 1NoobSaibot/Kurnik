@@ -1,7 +1,7 @@
 <template>
 	<q-card>
 		<q-card-section
-			v-if="gameState === 'created'"
+			v-if="gameState === 0"
 			style="width: 300px"
 		>
 			<q-select
@@ -19,7 +19,7 @@
 			<q-btn label="Start" color="primary" @click="startGame"/>
 		</q-card-section>
 		<q-card-section
-			v-else-if="gameState === 'ended'"
+			v-else-if="gameState === 2"
 			style="width: 300px"
 		>
 			<q-btn label="New Game" color="primary" @click="restartGame"/>
@@ -28,7 +28,7 @@
 </template>
 
 <script lang='ts'>
-import { computed, defineComponent, toRef, Ref, ref } from 'vue'
+import { computed, defineComponent, toRef, Ref, ref, watch } from 'vue'
 import { axios } from 'src/boot/axios'
 import { Socket } from 'socket.io-client'
 
@@ -37,6 +37,8 @@ interface Player {
 	complexity?: number,
 	wsIds?: string[]
 }
+
+type Config = (Player|undefined)[]
 
 export default defineComponent({
 	name: 'ReversiConfig',
@@ -47,7 +49,7 @@ export default defineComponent({
 		},
 		socket: Socket,
 		gameState: {
-			type: String,
+			type: Number,
 			required: true
 		}
 	},
@@ -61,11 +63,21 @@ export default defineComponent({
 		})
 
 		socket.value
-			.on('game-config', (players: (Player|undefined)[]) => {
-				whitePlayer.value = player2Option(players[0])
-				blackPlayer.value = player2Option(players[1])
-			})
+			.on('game-config', (players: Config) => setPlayers(players))
 		
+		function setPlayers (players: Config) {
+			whitePlayer.value = player2Option(players[0])
+			blackPlayer.value = player2Option(players[1])
+		}
+
+		function fetchConfig () {
+			axios.get<Config>(`api/reversi/${gameId.value}/config`)
+				.then(
+					({ data }) => setPlayers(data),
+					(e) => console.error(e)
+				)
+		}
+
 		function player2Option (player: Player|undefined): string {
 			if (!player) {
 				return ''
@@ -105,6 +117,10 @@ export default defineComponent({
 			})
 			// Note: The room should get new game-Id by WS
 		}
+
+		watch(gameId, fetchConfig)
+
+		fetchConfig()
 
 		return {
 			whitePlayer,

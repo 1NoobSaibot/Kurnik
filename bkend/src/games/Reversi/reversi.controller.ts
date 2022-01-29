@@ -49,6 +49,18 @@ export class ReversiController {
 		return response.status(404).send('Game is not found')
 	}
 
+	@Get(':id/config')
+	getConfig (
+		@Param('id') id: string,
+		@Res() res: Response
+	) {
+		const game = this._reversiService.getGameById(+id)
+		if (!game) {
+			return res.status(404).send('Game is not found')
+		}
+		return res.json(game.getPlayers())
+	}
+
 	@Post(':id/set/player')
 	setPlayer (
 		@Param('id') id: string,

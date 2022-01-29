@@ -30,7 +30,7 @@ export default class ReversiGame extends Game<ReversiBoard, ReversiMove, Reversi
     return {
       m,
       history: this.getHistoryData(),
-      isGameOver: this.isOver,
+      state: this.state,
       currentPlayer,
       players: this.getPlayers(),
 

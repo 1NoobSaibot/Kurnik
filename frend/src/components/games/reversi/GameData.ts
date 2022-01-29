@@ -1,4 +1,5 @@
 import { Probabilities, Score } from '../../typesFromBkend/common'
+import { State } from '../common';
 
 export enum ReversiCell {
   Empty = 0,
@@ -11,7 +12,7 @@ export enum ReversiCell {
  */
 export interface GameData {
   m: ReversiCell[][]
-  isGameOver: boolean
+  state: State,
   currentPlayer: ReversiCell
 
   probs: Probabilities[][]|undefined
