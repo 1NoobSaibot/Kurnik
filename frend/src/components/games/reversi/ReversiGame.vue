@@ -17,7 +17,7 @@
 
 <script lang='ts'>
 import Board from 'src/components/games/reversi/ReversiBoard.vue'
-import { computed, defineComponent, toRef, Ref, ref } from 'vue'
+import { computed, defineComponent, toRef, Ref, ref, watch } from 'vue'
 import { ReversiCell, GameData } from 'components/games/reversi/GameData'
 import { Socket } from 'socket.io-client'
 import Config from './ReversiConfig.vue'
@@ -83,13 +83,18 @@ export default defineComponent({
 			return sum
 		}
 
-		async function fetch() {
-			const { data } = await axios.get<GameData>(`api/reversi/${id.value}`, {
+		function fetch() {
+			axios.get<GameData>(`api/reversi/${id.value}`, {
 				params: {
 					wsId: socket.value.id
 				}
 			})
-			gameData.value = data
+				.then(({ data }) => {
+					gameData.value = data
+				})
+				.catch((e) => {
+					console.error(e)
+				})
 		}
 
 		async function onMove (args: ReversiMove) {
@@ -104,6 +109,12 @@ export default defineComponent({
         console.error(e)
       }
     }
+
+		watch (id, () => {
+			// TODO: Fix this HACK
+			fetch()
+			state.value = 'created'
+		})
 
 		fetch()
 

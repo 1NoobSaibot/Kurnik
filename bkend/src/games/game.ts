@@ -131,6 +131,10 @@ export abstract class Game<B extends IBoard<M, F>, M, F> {
     this._emitter.addListener(event, fn)
   }
 
+  public release () {
+    this._emitter.emit('released', this)
+  }
+
   private _moveAndRegister (args: M): boolean {
     if (this._state != State.Started) {
       return false
@@ -170,4 +174,4 @@ export abstract class Game<B extends IBoard<M, F>, M, F> {
   }
 }
 
-export type GameEvent = 'created'|'config'|'started'|'moved'|'over'
+export type GameEvent = 'created'|'config'|'started'|'moved'|'over'|'released'

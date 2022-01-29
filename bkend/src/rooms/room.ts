@@ -49,9 +49,13 @@ export class Room {
   }
 
   public setGame (game: Game<any, any, any>) {
-    if (this._game && this._game.isOver == false) {
-      throw new Error('Current game is not finished')
+    if (this._game) {
+      if (this._game.isOver == false) {
+        throw new Error('Current game is not finished')
+      }
+      this._game.release()
     }
+    
     this._game = game
     game.addListener('created', (id) => {
       this._emitGameEvent('game-created', id)
