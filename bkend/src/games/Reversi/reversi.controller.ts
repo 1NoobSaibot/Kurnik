@@ -1,7 +1,6 @@
 import { Body, Controller, Get, Param, Post, Put, Query, Res } from "@nestjs/common";
 import { Response } from "express";
 import { RoomsService } from "src/rooms/rooms.service";
-import ReversiMove from "./reversi-move";
 import { ReversiService } from "./reversi.service";
 import { SetPlayerDto } from "./dtos/set-player.dto";
 import { CreateGameDto } from "../dtos/created-game.dto";
@@ -9,6 +8,7 @@ import { Room } from "src/rooms/room";
 import { ApiBadRequestResponse, ApiCreatedResponse, ApiForbiddenResponse, ApiNotAcceptableResponse, ApiNotFoundResponse, ApiOkResponse, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { ReversiGameDto } from "./dtos/reversi-game.dto";
 import { PlayerDto } from "../Player";
+import { ReversiMoveDto } from "./dtos/reversi-move.dto";
 
 @ApiTags('Reversi')
 @Controller('api/reversi')
@@ -37,12 +37,11 @@ export class ReversiController {
 			return res.status(403).send('You can\'t create game here')
 		}
 
-		// TODO: Create a game
 		const game = this._reversiService.createGame(room)
 		return res.json({ gameId: game.id })
 	}
 
-	// TODO: Check auth ant access to see game data
+	// TODO: Check auth and access to see game data
 	@ApiCreatedResponse({ type: ReversiGameDto })
 	@Get(':id')
 	async getGame (
@@ -134,17 +133,17 @@ export class ReversiController {
 	@Put(':id/move')
 	async moveGame(
 		@Param('id') id: string,
-		@Body() body: Record<string, any>,
+		@Query('wsId') wsId: string,
+		@Body() move: ReversiMoveDto,
 		@Res() res: Response
 	) {
-		const wsId = body.wsId
 		const game = this._reversiService.getGameById(+id)
 		if (!game || game.isOver) {
 			return res.status(403).send('Game is over or was not created')
 		}
 		
 		// TODO: Hide it inside the Game<> class
-		let moved: boolean = await game.move(wsId, body as ReversiMove)
+		let moved: boolean = await game.move(wsId, move)
 		
 		if (!moved) {
 			return res.status(400).send('Wrong moving')

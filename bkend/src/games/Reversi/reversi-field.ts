@@ -1,5 +1,5 @@
 import ReversiBoard from "src/games/Reversi/reversi-board"
-import ReversiMove from "src/games/Reversi/reversi-move"
+import { ReversiMoveDto } from "./dtos/reversi-move.dto"
 import { ReversiState } from "./reversi-state"
 import { ReversiCell } from "./dtos/reversi-game.dto"
 
@@ -34,7 +34,7 @@ export default class ReversiField {
 		throw new Error('Not Implemented')
 	}
 
-	public getMoves (): ReversiMove[] {
+	public getMoves (): ReversiMoveDto[] {
 		return ReversiBoard.findMoves(this.m, this.currentPlayer)
 	}
 }

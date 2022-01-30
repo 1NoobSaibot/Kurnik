@@ -2,12 +2,12 @@ import { Bot } from 'src/games/Player'
 import { Game } from 'src/games/game'
 import ReversiBoard from './reversi-board'
 import ReversiField from './reversi-field'
-import ReversiMove from './reversi-move'
+import { ReversiMoveDto } from './dtos/reversi-move.dto'
 import ReversiRandomBot from './randomBot'
 import { ReversiGameDto } from './dtos/reversi-game.dto'
 import { Room } from 'src/rooms/room'
 
-export default class ReversiGame extends Game<ReversiBoard, ReversiMove, ReversiField> {
+export default class ReversiGame extends Game<ReversiBoard, ReversiMoveDto, ReversiField> {
   constructor(id: number, room: Room) {
     super(id, room)
     this._board = new ReversiBoard()
@@ -17,7 +17,7 @@ export default class ReversiGame extends Game<ReversiBoard, ReversiMove, Reversi
     return 'Reversi'
   }
 
-  makeBot (complexity: number): Bot<ReversiField, ReversiMove> {
+  makeBot (complexity: number): Bot<ReversiField, ReversiMoveDto> {
     if (complexity === 0)
       return new ReversiRandomBot()
     // TODO: Make a complexity bot

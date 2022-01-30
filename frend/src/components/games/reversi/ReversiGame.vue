@@ -95,10 +95,7 @@ export default defineComponent({
 		}
 
 		async function onMove (args: ReversiMove) {
-			axios.put(`api/reversi/${id.value}/move`, {
-				...args,
-				wsId: socket.value.id
-			})
+			axios.put(`api/reversi/${id.value}/move`, args, { params: { wsId: socket.value.id }})
 				.catch ((e) => console.error(e))
     }
 

@@ -1,12 +1,12 @@
 import { IBoard, SideInfo } from 'src/games/IBoard'
 import { ReversiState } from './reversi-state'
-import ReversiMove from './reversi-move'
+import { ReversiMoveDto } from './dtos/reversi-move.dto'
 import ReversiField from './reversi-field'
 import { Score } from 'src/games/common'
 import { ReversiCell } from 'src/games/Reversi/dtos/reversi-game.dto'
 
 
-export default class ReversiBoard implements IBoard<ReversiMove, ReversiField> {
+export default class ReversiBoard implements IBoard<ReversiMoveDto, ReversiField> {
 	private _state: ReversiState
 	private _winner: ReversiCell = ReversiCell.Empty
 	private _isGameOver: boolean = false
@@ -53,7 +53,7 @@ export default class ReversiBoard implements IBoard<ReversiMove, ReversiField> {
 		this._state = ReversiState.InitialState()
 	}
 
-	public move (args: ReversiMove) : boolean {
+	public move (args: ReversiMoveDto) : boolean {
 		const { x, y } = args
 		if (this._isGameOver)
 			return false
@@ -77,13 +77,13 @@ export default class ReversiBoard implements IBoard<ReversiMove, ReversiField> {
 		return new ReversiField(this._state)
 	}
 
-	public getMoves (): ReversiMove[] {
+	public getMoves (): ReversiMoveDto[] {
 		const player = this._state.currentPlayer
 		return ReversiBoard.findMoves(this._state.m, player)
 	}
 
-	public static findMoves (m: ReversiCell[][], player: ReversiCell): ReversiMove[] {
-		const moves: ReversiMove[] = []
+	public static findMoves (m: ReversiCell[][], player: ReversiCell): ReversiMoveDto[] {
+		const moves: ReversiMoveDto[] = []
 
 		for (let x = 0; x < 8; x++) {
 			for (let y = 0; y < 8; y++) {
