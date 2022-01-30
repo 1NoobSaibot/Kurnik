@@ -34,9 +34,11 @@ export default defineComponent({
 	methods: {
 		async create (name: string) {
 			const apiName = name.toLowerCase()
-      const { data } = await axios.post<{ gameId: number }>(`api/${apiName}`, {
-        roomId: this.roomId,
-        wsId: this.wsId
+      const { data } = await axios.post<{ gameId: number }>(`api/${apiName}`, null, {
+				params: {
+					roomId: this.roomId,
+					wsId: this.wsId
+				}
       })
 			this.$emit('created', { name, id: data.gameId })
 		}

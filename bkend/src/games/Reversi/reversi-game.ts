@@ -4,7 +4,7 @@ import ReversiBoard from './reversi-board'
 import ReversiField from './reversi-field'
 import ReversiMove from './reversi-move'
 import ReversiRandomBot from './randomBot'
-import { GameData } from './dtos/reversi-game.dto'
+import { ReversiGameDto } from './dtos/reversi-game.dto'
 import { Room } from 'src/rooms/room'
 
 export default class ReversiGame extends Game<ReversiBoard, ReversiMove, ReversiField> {
@@ -24,7 +24,7 @@ export default class ReversiGame extends Game<ReversiBoard, ReversiMove, Reversi
     return new ReversiRandomBot()
   }
 
-  getData (): GameData {
+  getData (): ReversiGameDto {
     const { m, currentPlayer } = this._board.getField()
 
     return {

@@ -1,12 +1,16 @@
-import { Body, Controller, Get, Param, Post, Put, Res } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Put, Query, Res } from "@nestjs/common";
 import { Response } from "express";
 import { RoomsService } from "src/rooms/rooms.service";
 import ReversiMove from "./reversi-move";
 import { ReversiService } from "./reversi.service";
 import { SetPlayerDto } from "./dtos/set-player.dto";
-import { CreateGameDto } from "./dtos/create-game.dto";
+import { CreateGameDto } from "../dtos/created-game.dto";
 import { Room } from "src/rooms/room";
+import { ApiBadRequestResponse, ApiCreatedResponse, ApiForbiddenResponse, ApiNotAcceptableResponse, ApiNotFoundResponse, ApiOkResponse, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ReversiGameDto } from "./dtos/reversi-game.dto";
+import { PlayerDto } from "../Player";
 
+@ApiTags('Reversi')
 @Controller('api/reversi')
 export class ReversiController {
 	constructor (
@@ -14,14 +18,16 @@ export class ReversiController {
 		private readonly _roomService: RoomsService
 	) {}
 
+	@ApiCreatedResponse({ type: CreateGameDto, description: 'Game ID' })
+	@ApiNotFoundResponse()
+	@ApiNotAcceptableResponse()
 	@Post()
 	async createGame (
-		@Body() body: CreateGameDto,
+		@Query('roomId') roomId: string,
+		@Query('wsId') wsId: string,
 		@Res() res: Response
 	) {
-		const roomId = +body.roomId
-		const wsId = body.wsId
-		const room: Room = this._roomService.getRoomById(roomId)
+		const room: Room = this._roomService.getRoomById(+roomId)
 		if (!room) {
 			return res.status(404).send('Cannot find room ' + roomId)
 		}
@@ -37,6 +43,7 @@ export class ReversiController {
 	}
 
 	// TODO: Check auth ant access to see game data
+	@ApiCreatedResponse({ type: ReversiGameDto })
 	@Get(':id')
 	async getGame (
 		@Param('id') id: string,
@@ -49,6 +56,7 @@ export class ReversiController {
 		return response.status(404).send('Game is not found')
 	}
 
+	@ApiCreatedResponse({ type: PlayerDto, isArray: true })
 	@Get(':id/config')
 	getConfig (
 		@Param('id') id: string,
@@ -61,15 +69,18 @@ export class ReversiController {
 		return res.json(game.getPlayers())
 	}
 
+	@ApiOkResponse()
+	@ApiForbiddenResponse()
 	@Post(':id/set/player')
 	setPlayer (
 		@Param('id') id: string,
+		@Query('wsId') wsId: string,
 		@Body() body: SetPlayerDto,
 		@Res() res: Response
 	) {
 		const game = this._reversiService.getGameById(+id)
-		const room = this._roomService.getRoomById(game.room.id)
-		const watcher = room.getWatcherByWsId(body.wsId)
+		const room = game.room
+		const watcher = room.getWatcherByWsId(wsId)
 
 		if (!watcher) {
 			return res.status(403).end()
@@ -89,6 +100,8 @@ export class ReversiController {
 	}
 
 	// TODO: Check auth and role in room before start the game
+	@ApiOkResponse()
+	@ApiBadRequestResponse()
 	@Post(':id/start')
 	async startGame (
 		@Param('id') id: string,
@@ -96,8 +109,18 @@ export class ReversiController {
 	) {
 		const game = this._reversiService.getGameById(+id)
 		if (game.start()) {
-			game.next()
-			return res.status(200).end()
+
+			// TODO: Fix this HACK!
+			async function looper () {
+				let done = false
+				do {
+					done = await game.next()
+				} while (done)
+			}
+			
+			looper()
+			
+			return res.status(201).end()
 		}
 
 		return res.status(400).end()
@@ -105,36 +128,44 @@ export class ReversiController {
 
 	// TODO: Check auth and allowing to move game
 	// TODO: dont use WS_ID for it
+	@ApiOkResponse()
+	@ApiForbiddenResponse()
+	@ApiBadRequestResponse()
 	@Put(':id/move')
 	async moveGame(
 		@Param('id') id: string,
 		@Body() body: Record<string, any>,
-		@Res() response: Response
+		@Res() res: Response
 	) {
 		const wsId = body.wsId
 		const game = this._reversiService.getGameById(+id)
 		if (!game || game.isOver) {
-			return response.status(403).send('Game is over or was not created')
+			return res.status(403).send('Game is over or was not created')
 		}
 		
+		// TODO: Hide it inside the Game<> class
 		let moved: boolean = await game.move(wsId, body as ReversiMove)
 		
 		if (!moved) {
-			return response.status(400).send('Wrong moving')
+			return res.status(400).send('Wrong moving')
 		}
 
 		do {
 			moved = await game.next()
 		} while (moved)
+		// All of it
 
-		response.json(game.getData())
+		res.status(201).end()
 	}
 
 	// TODO: Check auth and role in room before start the game
+	@ApiCreatedResponse({ type: CreateGameDto, description: 'Game ID' })
+	@ApiNotFoundResponse()
+	@ApiNotAcceptableResponse()
 	@Post(':id/restart')
 	async restartGame (
 		@Param('id') id: string,
-		@Body() body: { wsId: string },
+		@Query('wsId') wsId: string,
 		@Res() res: Response
 	) {
 		const game = this._reversiService.getGameById(+id)
@@ -152,7 +183,7 @@ export class ReversiController {
 			return res.status(404).send('Cannot find room ' + roomId)
 		}
 		// TODO: Check permission correctly
-		const watcher = room.getWatcherByWsId(body.wsId)
+		const watcher = room.getWatcherByWsId(wsId)
 		if (!watcher) {
 			return res.status(403).send('You can\'t create game here')
 		}

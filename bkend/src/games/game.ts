@@ -117,7 +117,7 @@ export abstract class Game<B extends IBoard<M, F>, M, F> {
     return this._board.getSides()
   }
 
-  public getPlayers (): Record<number, PlayerDto|undefined> {
+  public getPlayers (): (PlayerDto|undefined)[] {
     const res = []
     for (let i = 0; i < this._players.length; i++) {
       res[i] = this._players[i]?.toPlayerDto() ?? undefined

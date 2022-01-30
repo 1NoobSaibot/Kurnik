@@ -99,9 +99,10 @@ export default defineComponent({
 		
 		function setPlayer (who: 'me'|'bot', side: number) {
 			axios.post<void>(`api/reversi/${gameId.value}/set/player`, {
-				wsId: wsId.value,
 				player: who,
 				side
+			}, {
+				params: { wsId: wsId.value }
 			})
 				.catch((e) => { throw e })
 		}
@@ -112,8 +113,8 @@ export default defineComponent({
 		}
 
 		async function restartGame () {
-			await axios.post<{ gameId: number }>(`api/reversi/${gameId.value}/restart`, {
-				wsId: wsId.value
+			await axios.post<{ gameId: number }>(`api/reversi/${gameId.value}/restart`, null, {
+				params: { wsId: wsId.value }
 			})
 			// Note: The room should get new game-Id by WS
 		}

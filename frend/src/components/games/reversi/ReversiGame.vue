@@ -95,16 +95,11 @@ export default defineComponent({
 		}
 
 		async function onMove (args: ReversiMove) {
-      try {
-        const { data } = await axios
-          .put<GameData>(`api/reversi/${id.value}/move`, {
-            ...args,
-            wsId: socket.value.id
-          })
-        gameData.value = data
-      } catch (e) {
-        console.error(e)
-      }
+			axios.put(`api/reversi/${id.value}/move`, {
+				...args,
+				wsId: socket.value.id
+			})
+				.catch ((e) => console.error(e))
     }
 
 		watch (id, () => {

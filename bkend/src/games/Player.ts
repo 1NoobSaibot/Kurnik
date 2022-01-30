@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger'
 import { Watcher } from 'src/rooms/watcher'
 
 export interface IPlayer {
@@ -36,8 +37,13 @@ export abstract class Bot<F, Move> implements IPlayer {
   }
 }
 
-export interface PlayerDto {
-  isBot: boolean,
-	complexity?: number,
+export class PlayerDto {
+  @ApiProperty()
+  isBot: boolean
+
+  @ApiProperty({ required: false })
+	complexity?: number
+
+  @ApiProperty({ required: false })
 	wsIds?: string[]
 }
