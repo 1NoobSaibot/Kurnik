@@ -1,8 +1,9 @@
 import { Bot, Human, IPlayer, PlayerDto } from './Player'
 import { IBoard, SideInfo } from './IBoard'
 import { History } from 'src/games/history'
-import { PermissionDeniedError, Room } from 'src/rooms/room'
+import { Room } from 'src/rooms/room'
 import { EventEmitter } from 'events'
+import { ForbiddenException } from '@nestjs/common'
 
 export enum State {
   Created,
@@ -85,7 +86,7 @@ export abstract class Game<B extends IBoard<M, F>, M, F> {
 
   public addHuman (wsId: string, side: number): boolean {
     if (this._state != State.Created) {
-      throw new PermissionDeniedError(wsId, 'game-setplayer')
+      throw new ForbiddenException(null, `The game is running`)
     }
     this.room.checkPermission(wsId, 'game-setplayer')
     const watcher = this.room.getWatcherByWsId(wsId)
@@ -99,7 +100,7 @@ export abstract class Game<B extends IBoard<M, F>, M, F> {
 
   public addBot (wsId: string, side: number, complexity: number): boolean {
     if (this._state != State.Created) {
-      throw new PermissionDeniedError(wsId, 'game-setplayer')
+      throw new ForbiddenException(null, `The game is running`)
     }
     this.room.checkPermission(wsId, 'game-setplayer')
     const watcher = this.room.getWatcherByWsId(wsId)

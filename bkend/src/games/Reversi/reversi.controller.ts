@@ -4,8 +4,8 @@ import { RoomsService } from "src/rooms/rooms.service";
 import { ReversiService } from "./reversi.service";
 import { SetPlayerDto } from "./dtos/set-player.dto";
 import { CreateGameDto } from "../dtos/created-game.dto";
-import { Room, PermissionDeniedError } from "src/rooms/room";
-import { ApiBadRequestResponse, ApiCreatedResponse, ApiForbiddenResponse, ApiNotAcceptableResponse, ApiNotFoundResponse, ApiOkResponse, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { Room } from "src/rooms/room";
+import { ApiBadRequestResponse, ApiCreatedResponse, ApiForbiddenResponse, ApiNotAcceptableResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags } from "@nestjs/swagger";
 import { ReversiGameDto } from "./dtos/reversi-game.dto";
 import { PlayerDto } from "../Player";
 import { ReversiMoveDto } from "./dtos/reversi-move.dto";
@@ -27,17 +27,9 @@ export class ReversiController {
 		@Query('wsId') wsId: string,
 		@Res() res: Response
 	) {
-		try {
-			const room: Room = this._roomService.getRoomById(+roomId)
-			const game = room.createGame(wsId, this._reversiService)
-			return res.json({ gameId: game.id })
-		} catch (e) {
-			if (e instanceof PermissionDeniedError) {
-				res.status(403).send('You can\'t create games here')
-			}
-		}
-
-		
+		const room: Room = this._roomService.getRoomById(+roomId)
+		const game = room.createGame(wsId, this._reversiService)
+		return res.json({ gameId: game.id })
 	}
 
 	// TODO: Check auth and access to see game data
@@ -76,20 +68,13 @@ export class ReversiController {
 		@Body() body: SetPlayerDto,
 		@Res() res: Response
 	) {
-		try {
-			const game = this._reversiService.getGameById(+id)
-			const isAccepted = body.player === 'me'
-				? game.addHuman(wsId, body.side)
-				: game.addBot(wsId, body.side, body.complexity)
+		const game = this._reversiService.getGameById(+id)
+		const isAccepted = body.player === 'me'
+			? game.addHuman(wsId, body.side)
+			: game.addBot(wsId, body.side, body.complexity)
 
-			if (isAccepted) {
-				return res.status(201).end()
-			}
-			
-		} catch (e) {
-			if (e instanceof PermissionDeniedError) {
-				return res.status(403).send(e.message)
-			}
+		if (isAccepted) {
+			return res.status(201).end()
 		}
 	}
 
@@ -104,25 +89,19 @@ export class ReversiController {
 		@Res() res: Response
 	) {
 		const game = this._reversiService.getGameById(+id)
-		try {
-			if (game.start(wsId)) {
+		if (game.start(wsId)) {
 
-				// TODO: Fix this HACK!
-				async function looper () {
-					let done = false
-					do {
-						done = await game.next()
-					} while (done)
-				}
-				
-				looper()
-				
-				return res.status(201).end()
+			// TODO: Fix this HACK!
+			async function looper () {
+				let done = false
+				do {
+					done = await game.next()
+				} while (done)
 			}
-		} catch (e) {
-			if (e instanceof PermissionDeniedError) {
-				return res.status(403).send('You can\t start the game')
-			}
+			
+			looper()
+			
+			return res.status(201).end()
 		}
 
 		return res.status(400).end()
@@ -170,19 +149,13 @@ export class ReversiController {
 		@Query('wsId') wsId: string,
 		@Res() res: Response
 	) {
-		try {
-			const game = this._reversiService.getGameById(+id)
-			// TODO: Create an ErrorType for getGameById Method
-			if (!game) {
-				res.status(404).send('Game is not found')
-			}
-
-			const newGame = game.room.createGame(wsId, this._reversiService)
-			return res.json({ gameId: newGame.id })
-		} catch (e) {
-			if (e instanceof PermissionDeniedError) {
-				res.status(403).send('You can\'t create games here')
-			}
+		const game = this._reversiService.getGameById(+id)
+		// TODO: Create an ErrorType for getGameById Method
+		if (!game) {
+			res.status(404).send('Game is not found')
 		}
+
+		const newGame = game.room.createGame(wsId, this._reversiService)
+		return res.json({ gameId: newGame.id })
 	}
 }

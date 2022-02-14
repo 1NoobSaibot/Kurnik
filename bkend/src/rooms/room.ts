@@ -3,6 +3,7 @@ import { Socket } from 'socket.io'
 import { UserDto } from 'src/users/UserDtos'
 import { Game } from 'src/games/game'
 import { GameService } from "src/games/game.service"
+import { ForbiddenException } from "@nestjs/common"
 
 export class Room {
   public readonly id: number
@@ -71,7 +72,7 @@ export class Room {
   public checkPermission (wsId: string, permission: PermissionType) {
     const watcher = this.getWatcherByWsId(wsId)
 		if (!watcher) {
-			throw new PermissionDeniedError(wsId, permission)
+			throw new ForbiddenException(null, `User (wsId=${wsId}) was denied access (${permission})`)
 		}
   }
 
@@ -112,9 +113,3 @@ export type GameEvent = 'game-created'
   |'game-over'
 
 export type PermissionType = 'game-create'|'game-setplayer'|'game-start'
-
-export class PermissionDeniedError extends Error {
-  constructor (wsId: string, permission: PermissionType) {
-    super(`User (wsId=${wsId}) was denied access (${permission})`)
-  }
-}
