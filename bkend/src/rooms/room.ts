@@ -2,6 +2,7 @@ import { Watcher } from "./watcher"
 import { Socket } from 'socket.io'
 import { UserDto } from 'src/users/UserDtos'
 import { Game } from 'src/games/game'
+import { GameService } from "src/games/game.service"
 
 export class Room {
   public readonly id: number
@@ -48,18 +49,11 @@ export class Room {
     return this._watchers.find((watcher) => watcher.containsWsId(wsId))
   }
 
-  public setGame (game: Game<any, any, any>) {
+  private _setGame (game: Game<any, any, any>) {
     if (this._game) {
-      if (this._game.isOver == false) {
-        throw new Error('Current game is not finished')
-      }
       this._game.release()
     }
-    
     this._game = game
-    game.addListener('created', (id) => {
-      this._emitGameEvent('game-created', id)
-    })
     game.addListener('config', (conf) => {
       this._emitGameEvent('game-config', conf)
     })
@@ -72,6 +66,27 @@ export class Room {
     game.addListener('over', () => {
       this._emitGameEvent('game-over')
     })
+  }
+
+  public checkPermission (wsId: string, permission: PermissionType) {
+    const watcher = this.getWatcherByWsId(wsId)
+		if (!watcher) {
+			throw new PermissionDeniedError(wsId, permission)
+		}
+  }
+
+  public createGame (wsId: string, service: GameService<Game<any, any, any>>, ...args: any[]): Game<any, any, any> {
+    this.checkPermission(wsId, 'game-create')
+    if (this._game) {
+      if (this._game.isOver == false) {
+        throw new Error('Current game is not finished')
+      }
+    }
+
+    const game = service.createGame(this, ...args)
+    this._setGame(game)
+    this._emitGameEvent('game-created', game.id)
+    return game
   }
 
   private _emitGameEvent (event: GameEvent, ...args: any[]) {
@@ -95,3 +110,11 @@ export type GameEvent = 'game-created'
   |'game-started'
   |'game-moved'
   |'game-over'
+
+export type PermissionType = 'game-create'|'game-setplayer'|'game-start'
+
+export class PermissionDeniedError extends Error {
+  constructor (wsId: string, permission: PermissionType) {
+    super(`User (wsId=${wsId}) was denied access (${permission})`)
+  }
+}

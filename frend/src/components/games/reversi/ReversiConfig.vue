@@ -108,7 +108,7 @@ export default defineComponent({
 		}
 
 		async function startGame () {
-			await axios.post<void>(`api/reversi/${gameId.value}/start`)
+			await axios.post<void>(`api/reversi/${gameId.value}/start`, null, { params: { wsId: wsId.value } })
 			emit('started')
 		}
 

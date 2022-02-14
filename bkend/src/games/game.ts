@@ -1,8 +1,7 @@
 import { Bot, Human, IPlayer, PlayerDto } from './Player'
 import { IBoard, SideInfo } from './IBoard'
 import { History } from 'src/games/history'
-import { Watcher } from 'src/rooms/watcher'
-import { Room } from 'src/rooms/room'
+import { PermissionDeniedError, Room } from 'src/rooms/room'
 import { EventEmitter } from 'events'
 
 export enum State {
@@ -28,9 +27,7 @@ export abstract class Game<B extends IBoard<M, F>, M, F> {
   constructor(id: number, room: Room) {
     this.id = id
     this.room = room
-    room.setGame(this)
     this._history = new History<F, M>()
-    this._emitter.emit('created', id)
   }
 
   public abstract get name (): string
@@ -47,7 +44,8 @@ export abstract class Game<B extends IBoard<M, F>, M, F> {
     return this._state
   }
 
-  public start (): boolean {
+  public start (wsId: string): boolean {
+    this.room.checkPermission(wsId, 'game-start')
     if (this.isStarted) {
       return false
     }
@@ -85,7 +83,12 @@ export abstract class Game<B extends IBoard<M, F>, M, F> {
     return this._players[this._board.getCurrentPlayer()]
   }
 
-  public addHuman (side: number, watcher: Watcher): boolean {
+  public addHuman (wsId: string, side: number): boolean {
+    if (this._state != State.Created) {
+      throw new PermissionDeniedError(wsId, 'game-setplayer')
+    }
+    this.room.checkPermission(wsId, 'game-setplayer')
+    const watcher = this.room.getWatcherByWsId(wsId)
     const currentPlayer = this._players[side]
     if (currentPlayer && currentPlayer.isUser) {
       return false
@@ -94,7 +97,12 @@ export abstract class Game<B extends IBoard<M, F>, M, F> {
     return this._setPlayer(side, player)
   }
 
-  public addBot (side: number, watcher: Watcher, complexity: number): boolean {
+  public addBot (wsId: string, side: number, complexity: number): boolean {
+    if (this._state != State.Created) {
+      throw new PermissionDeniedError(wsId, 'game-setplayer')
+    }
+    this.room.checkPermission(wsId, 'game-setplayer')
+    const watcher = this.room.getWatcherByWsId(wsId)
     const currentPlayer = this._players[side]
     if (currentPlayer && currentPlayer.isUser && (currentPlayer as Human).watcher !== watcher) {
       return false
@@ -162,10 +170,6 @@ export abstract class Game<B extends IBoard<M, F>, M, F> {
    * @param player 
    */
    private _setPlayer (side: number, player: IPlayer): boolean {
-    if (this._state != State.Created) {
-      return false
-    }
-
     this._players[side] = player
 
     // TODO: Seems like here we should give CONFIG, not only Players
@@ -174,4 +178,4 @@ export abstract class Game<B extends IBoard<M, F>, M, F> {
   }
 }
 
-export type GameEvent = 'created'|'config'|'started'|'moved'|'over'|'released'
+export type GameEvent = 'config'|'started'|'moved'|'over'|'released'
