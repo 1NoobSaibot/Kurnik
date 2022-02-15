@@ -71,7 +71,10 @@ export default defineComponent({
     const socket: Socket = io('/room', {
       transports: ['websocket'],
       // TODO: Use Authorization
-      query: { userId: '7', roomId: roomId.value.toString() }
+      query: {
+        // userId: '7',
+        roomId: roomId.value.toString()
+      }
     })
     socket
       .on('connect', () => {
