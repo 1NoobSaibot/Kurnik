@@ -1,6 +1,4 @@
-import { Injectable } from '@nestjs/common'
-import { GamesService } from 'src/games/games.service'
-import { UsersService } from 'src/users/users.service'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { Room } from './room'
 
 export interface UserRoomData {
@@ -28,13 +26,17 @@ export class RoomsService {
   }
 
   public getRoomById (id: number) : Room {
-    return this._rooms[id]
+    const room = this._rooms[id]
+    if (!room) {
+      throw new NotFoundException(`Room ${id} is not found`)
+    }
+    return room
   }
 
   public getAllRooms (): UserRoomData[] {
-    const res = []
+    const res = new Array(this._rooms.length)
     for (let i = 0; i < this._rooms.length; i++) {
-      res.push(this._rooms[i].getDataForUser())
+      res[i] = this._rooms[i].getDataForUser()
     }
     return res
   }

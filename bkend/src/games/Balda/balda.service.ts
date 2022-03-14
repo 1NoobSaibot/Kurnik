@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common"
+import { Injectable, NotFoundException } from "@nestjs/common"
 import { InjectRepository } from "@nestjs/typeorm"
 import { Room } from "src/rooms/room"
 import { Repository } from "typeorm"
@@ -60,7 +60,11 @@ export class BaldaService extends GameService<BaldaGame> {
 	}
 
 	public getRandomWord (lang: string, length: number): string {
-		return this._words[lang].words.getRandomWord(length)
+		try {
+			return this._words[lang].words.getRandomWord(length)
+		} catch {
+			throw new NotFoundException(`There are no words for lang=${lang} and length=${length}`)
+		}
 	}
 
 	public async deleteWord (word: string, lang: string): Promise<void> {
@@ -73,6 +77,9 @@ export class BaldaService extends GameService<BaldaGame> {
 
 	public isValidChar (char: string, lang: string): boolean {
 		const langData = this._words[lang]
+		if (!langData) {
+			throw new NotFoundException(`Lang ${lang} is not found`)
+		}
 		return char.length == 1 && langData.allowedChars.includes(char)
 	}
 

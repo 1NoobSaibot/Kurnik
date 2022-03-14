@@ -7,6 +7,7 @@ import { ForbiddenException } from "@nestjs/common"
 
 export class Room {
   public readonly id: number
+  public readonly createdAt: Date = new Date
   public ownerId: number
   public get game (): GameInfo|null {
     if (!this._game) {
