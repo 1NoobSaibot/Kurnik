@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { State } from 'src/games/game'
+import { State } from '../../game'
 import { PlayerDto } from 'src/games/Player'
 import { Probabilities, Score } from '../../common'
 import ReversiField from '../reversi-field'

@@ -1,4 +1,4 @@
-import ReversiBoard from "src/games/Reversi/reversi-board"
+import ReversiBoard from "./reversi-board"
 import { ReversiMoveDto } from "./dtos/reversi-move.dto"
 import { ReversiState } from "./reversi-state"
 import { ReversiCell } from "./dtos/reversi-game.dto"

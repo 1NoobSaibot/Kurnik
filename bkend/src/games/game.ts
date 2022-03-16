@@ -1,6 +1,6 @@
 import { Bot, Human, IPlayer, PlayerDto } from './Player'
 import { IBoard, SideInfo } from './IBoard'
-import { History } from 'src/games/history'
+import { History } from './history'
 import { Room } from 'src/rooms/room'
 import { EventEmitter } from 'events'
 import { ForbiddenException } from '@nestjs/common'

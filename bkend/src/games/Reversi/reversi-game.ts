@@ -1,5 +1,5 @@
 import { Bot } from 'src/games/Player'
-import { Game } from 'src/games/game'
+import { Game } from '../game'
 import ReversiBoard from './reversi-board'
 import ReversiField from './reversi-field'
 import { ReversiMoveDto } from './dtos/reversi-move.dto'

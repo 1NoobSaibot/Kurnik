@@ -1,9 +1,9 @@
-import { IBoard, SideInfo } from 'src/games/IBoard'
+import { IBoard, SideInfo } from '../IBoard'
 import { ReversiState } from './reversi-state'
 import { ReversiMoveDto } from './dtos/reversi-move.dto'
 import ReversiField from './reversi-field'
-import { Score } from 'src/games/common'
-import { ReversiCell } from 'src/games/Reversi/dtos/reversi-game.dto'
+import { Score } from '../common'
+import { ReversiCell } from './dtos/reversi-game.dto'
 
 
 export default class ReversiBoard implements IBoard<ReversiMoveDto, ReversiField> {
