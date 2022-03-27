@@ -89,17 +89,6 @@ export class ReversiController {
 	) {
 		const game = this._reversiService.getGameById(+id)
 		if (game.start(wsId)) {
-
-			// TODO: Fix this HACK!
-			async function looper () {
-				let done = false
-				do {
-					done = await game.next()
-				} while (done)
-			}
-			
-			looper()
-			
 			return res.status(201).end()
 		}
 
@@ -124,19 +113,12 @@ export class ReversiController {
 		}
 		
 		const position = new Point(move.x, move.y)
-		// TODO: Hide it inside the Game<> class
-		let moved: boolean = await game.move(wsId, position)
+		let moved: boolean = await game.moveUser(wsId, position)
 		
 		if (!moved) {
 			return res.status(400).send('Wrong moving')
 		}
-
-		do {
-			moved = await game.next()
-		} while (moved)
-		// All of it
-
-		res.status(201).end()
+		return res.status(201).end()
 	}
 
 	// TODO: Check auth and role in room before start the game

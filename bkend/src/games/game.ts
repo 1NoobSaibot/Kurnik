@@ -98,34 +98,41 @@ export abstract class Game<B extends Board<MoveArgs, BoardState>, MoveArgs, Boar
 		}
 		this.room.checkPermission(wsId, 'game-start')
 		
-		if (this.checkConfig()) {
-			this._board = this._createBoard()
-			this._board.onMove(this._onMove.bind(this))
-			this._board.onGameOver(this._onGameOver.bind(this))
-			this._history = new History<BoardState, MoveArgs>()
-			this._emitter.emit('started')
-			return true
-		}
-	
-		return false
-	}
-	
-	public async next (): Promise<boolean> {
-		if (this.isOver || this.currentPlayer.isUser) {
+		if (!this.checkConfig()) {
 			return false
 		}
-		const bot = this.currentPlayer as Bot<B, MoveArgs, BoardState>
-		bot.move(this._board)
+	
+		this._board = this._createBoard()
+		this._board.onMove(this._onMove.bind(this))
+		this._board.onGameOver(this._onGameOver.bind(this))
+		this._history = new History<BoardState, MoveArgs>()
+		this._emitter.emit('started')
+
+		this._moveBots()
+
+		return true
 	}
 
-	public move (wsId: string, args: MoveArgs): boolean {
+	private async _moveBots () {
+		while (this.isRunning && this.currentPlayer.isBot) {
+			await sleep(1000)
+			const bot = this.currentPlayer as Bot<B, MoveArgs, BoardState>
+			bot.move(this._board)
+		}
+	}
+
+	public moveUser (wsId: string, args: MoveArgs): boolean {
 		const canMove = this.isRunning
 			&& this.currentPlayer.isUser
 			&& (this.currentPlayer as Human).watcher.containsWsId(wsId)
 
-		if (canMove) {
-			// Game observes its board. We will react to successful move inside _onMove callback
-			return this._board.move(args)
+		if (!canMove) {
+			return false
+		}
+		// Game observes its board. We will react to successful move inside _onMove callback
+		if (this._board.move(args)) {
+			this._moveBots()
+			return true
 		}
 		return false
 	}
@@ -221,3 +228,9 @@ export abstract class Game<B extends Board<MoveArgs, BoardState>, MoveArgs, Boar
 }
 
 export type GameEvent = 'config'|'started'|'moved'|'over'|'released'
+
+async function sleep (ms: number): Promise<void> {
+	return new Promise((resolve) => {
+		setTimeout(resolve, ms)
+	})
+}
