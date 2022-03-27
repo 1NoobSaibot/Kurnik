@@ -1,41 +1,40 @@
 import { Bot } from 'src/games/Player'
 import { Game } from '../game'
 import ReversiBoard from './reversi-board'
-import ReversiField from './reversi-field'
-import { ReversiMoveDto } from './dtos/reversi-move.dto'
-import ReversiRandomBot from './randomBot'
-import { ReversiGameDto } from './dtos/reversi-game.dto'
-import { Room } from 'src/rooms/room'
+import ReversiRandomBot from './bots/randomBot'
+import { ReversiCell } from './reversi-state'
+import { ReversiState } from './reversi-state'
+import { Point } from '../common/point'
 
-export default class ReversiGame extends Game<ReversiBoard, ReversiMoveDto, ReversiField> {
-  constructor(id: number, room: Room) {
-    super(id, room)
-    this._board = new ReversiBoard()
-  }
-  
-  public get name () {
-    return 'Reversi'
-  }
+export default class ReversiGame extends Game<ReversiBoard, Point, ReversiState> {
+	public get name () {
+		return 'Reversi'
+	}
 
-  makeBot (complexity: number): Bot<ReversiField, ReversiMoveDto> {
-    if (complexity === 0)
-      return new ReversiRandomBot()
-    // TODO: Make a complexity bot
-    return new ReversiRandomBot()
-  }
+	protected _createBoard (): ReversiBoard {
+		return new ReversiBoard()
+	}
 
-  getData (): ReversiGameDto {
-    const { m, currentPlayer } = this._board.getField()
+	protected _getAmountOfPlayers () {
+		return 2
+	}
 
-    return {
-      m,
-      history: this.getHistoryData(),
-      state: this.state,
-      currentPlayer,
-      players: this.getPlayers(),
+	protected _getCurrentPlayerIndex () {
+		const board = this.board
+		const currentSide = board.currentSide
+		if (currentSide == ReversiCell.White) {
+			return 0
+		}
+		if (currentSide == ReversiCell.Black) {
+			return 1
+		}
+		throw new Error(`It cannot be a player`)
+	}
 
-      probs: undefined,
-      yourScore: undefined
-    }
-  }
+	protected _createBot (complexity: number): Bot<ReversiBoard, Point, ReversiState> {
+		if (complexity === 0)
+			return new ReversiRandomBot()
+		// TODO: Make a complexity bot
+		return new ReversiRandomBot()
+	}
 }

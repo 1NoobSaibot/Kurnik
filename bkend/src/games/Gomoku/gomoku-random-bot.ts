@@ -1,10 +1,11 @@
 import { Bot } from "src/games/Player";
-import GomokuField from "./gomoku-field";
-import GomokuMove from "./gomoku-move";
+import { Point } from "../common/point";
+import { GomokuBoard } from "./gomoku-board";
+import { GomokuState } from "./gomoku-state";
 
 
-export default class GomokuRandomBot extends Bot<GomokuField, GomokuMove> {
-  async getMove (field: GomokuField) : Promise<GomokuMove> {
+export default class GomokuRandomBot extends Bot<GomokuBoard, Point, GomokuState> {
+  async move (board: GomokuBoard) {
     throw new Error('Not Implemented')
   }
 }

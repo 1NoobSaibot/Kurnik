@@ -6,9 +6,9 @@ import { SetPlayerDto } from "./dtos/set-player.dto";
 import { CreateGameDto } from "../dtos/created-game.dto";
 import { Room } from "src/rooms/room";
 import { ApiBadRequestResponse, ApiCreatedResponse, ApiForbiddenResponse, ApiNotAcceptableResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags } from "@nestjs/swagger";
-import { ReversiGameDto } from "./dtos/reversi-game.dto";
 import { PlayerDto } from "../Player";
 import { ReversiMoveDto } from "./dtos/reversi-move.dto";
+import { Point } from "../common/point";
 
 @ApiTags('Reversi')
 @Controller('api/reversi')
@@ -33,7 +33,6 @@ export class ReversiController {
 	}
 
 	// TODO: Check auth and access to see game data
-	@ApiCreatedResponse({ type: ReversiGameDto })
 	@Get(':id')
 	async getGame (
 		@Param('id') id: string,
@@ -124,8 +123,9 @@ export class ReversiController {
 			return res.status(403).send('Game is over or was not created')
 		}
 		
+		const position = new Point(move.x, move.y)
 		// TODO: Hide it inside the Game<> class
-		let moved: boolean = await game.move(wsId, move)
+		let moved: boolean = await game.move(wsId, position)
 		
 		if (!moved) {
 			return res.status(400).send('Wrong moving')

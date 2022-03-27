@@ -18,12 +18,12 @@
 <script lang='ts'>
 import Board from 'src/components/games/reversi/ReversiBoard.vue'
 import { computed, defineComponent, toRef, Ref, ref, watch } from 'vue'
-import { ReversiCell, GameData } from 'components/games/reversi/GameData'
+import { ReversiCell, ReversiGameData } from 'components/games/reversi/GameData'
 import { Socket } from 'socket.io-client'
 import Config from './ReversiConfig.vue'
 import { ReversiMove } from './ReversiMove'
 import { axios } from 'src/boot/axios'
-import { State } from '../common'
+import { GameState } from '../common'
 
 export default defineComponent({
 	name: 'ReversiGame',
@@ -38,9 +38,9 @@ export default defineComponent({
 	setup (props) {
 		const socket = toRef(props, 'socket') as Ref<Socket>
 		const id = toRef(props, 'id') as Ref<number>
-		const gameData = ref<GameData|null>(null)
-		const state = computed<State>(() => {
-			return gameData.value?.state ?? State.Ended
+		const gameData = ref<ReversiGameData|null>(null)
+		const state = computed<GameState>(() => {
+			return gameData.value?.state ?? GameState.Created
 		})
 		socket.value
       .on('game-moved', fetch)
@@ -48,19 +48,17 @@ export default defineComponent({
 			.on('game-over', fetch)
 
 		const board = computed<ReversiCell[][]>(() => {
-			if (gameData.value) {
-				return gameData.value.m
-			}
-			return [
-				[0, 0, 0, 0, 0, 0, 0, 0],
-				[0, 0, 0, 0, 0, 0, 0, 0],
-				[0, 0, 0, 0, 0, 0, 0, 0],
-				[0, 0, 0, 0, 0, 0, 0, 0],
-				[0, 0, 0, 0, 0, 0, 0, 0],
-				[0, 0, 0, 0, 0, 0, 0, 0],
-				[0, 0, 0, 0, 0, 0, 0, 0],
-				[0, 0, 0, 0, 0, 0, 0, 0]
-			]
+			return gameData.value?.board?.cells ??
+				[
+					[0, 0, 0, 0, 0, 0, 0, 0],
+					[0, 0, 0, 0, 0, 0, 0, 0],
+					[0, 0, 0, 0, 0, 0, 0, 0],
+					[0, 0, 0, 1, 2, 0, 0, 0],
+					[0, 0, 0, 2, 1, 0, 0, 0],
+					[0, 0, 0, 0, 0, 0, 0, 0],
+					[0, 0, 0, 0, 0, 0, 0, 0],
+					[0, 0, 0, 0, 0, 0, 0, 0]
+				]
 		})
 
 		const bCounter = computed<number>(() => {
@@ -81,7 +79,7 @@ export default defineComponent({
 		}
 
 		function fetch() {
-			axios.get<GameData>(`api/reversi/${id.value}`, {
+			axios.get<ReversiGameData>(`api/reversi/${id.value}`, {
 				params: {
 					wsId: socket.value.id
 				}

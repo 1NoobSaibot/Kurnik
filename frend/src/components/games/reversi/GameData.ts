@@ -1,5 +1,5 @@
 import { Probabilities, Score } from '../../typesFromBkend/common'
-import { State } from '../common';
+import { GameData, GameState } from '../common';
 
 export enum ReversiCell {
   Empty = 0,
@@ -7,14 +7,14 @@ export enum ReversiCell {
   Black = 2
 }
 
+export interface ReversiState {
+  cells: ReversiCell[][]
+  currentSide: ReversiCell
+}
+
+
 /**
  * Data which game returns about itself
  */
-export interface GameData {
-  m: ReversiCell[][]
-  state: State,
-  currentPlayer: ReversiCell
-
-  probs: Probabilities[][]|undefined
-  yourScore: never|Score
-}
+export interface ReversiGameData extends GameData<ReversiState>
+{ }

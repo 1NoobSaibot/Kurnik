@@ -1,3 +1,4 @@
+import { NotFoundException } from '@nestjs/common'
 import { Room } from 'src/rooms/room'
 import { Game } from './game'
 
@@ -5,7 +6,11 @@ export abstract class GameService<G extends Game<any, any, any>> {
 	private readonly _games: G[] = []
 
 	public getGameById (id: number): G {
-		return this._games[id]
+		const game = this._games[id]
+		if (!game) {
+			throw new NotFoundException(`Game (id=${id}) is not found`)
+		}
+		return game
 	}
 
 	public abstract constructGame (room: Room, id: number, ...args: any[]): G

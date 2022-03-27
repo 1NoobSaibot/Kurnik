@@ -1,182 +1,223 @@
 import { Bot, Human, IPlayer, PlayerDto } from './Player'
-import { IBoard, SideInfo } from './IBoard'
+import { Board } from './IBoard'
 import { History } from './history'
 import { Room } from 'src/rooms/room'
 import { EventEmitter } from 'events'
 import { ForbiddenException } from '@nestjs/common'
+import { GameData } from './game.data'
 
-export enum State {
-  Created,
-  Started,
-  Ended
+export enum GameState {
+	Created,
+	Started,
+	Ended
 }
 
-/**
- * Инкапсулирует игровой цикл
- * И взаимодействие игровой доски с игроками
- * Оборачивает историю ходов
- */
-export abstract class Game<B extends IBoard<M, F>, M, F> {
-  protected _board: B
-  private _history: History<F, M>
-  public readonly id: number
-  private _state: State = State.Created
-  private _players: IPlayer[] = []
-  public readonly room: Room
-  private readonly _emitter: EventEmitter = new EventEmitter()
+export abstract class Game<B extends Board<MoveArgs, BoardState>, MoveArgs, BoardState> {
+	public readonly id: number
+	public readonly room: Room
+	private readonly _emitter: EventEmitter = new EventEmitter()
+	private _board: B|null = null
+	private _history: History<BoardState, MoveArgs>|null
+	private _players: IPlayer[] = []
 
-  constructor(id: number, room: Room) {
-    this.id = id
-    this.room = room
-    this._history = new History<F, M>()
-  }
+	constructor (id: number, room: Room) {
+		this.id = id
+		this.room = room
+		/* this._board = this._createBoard()
+		this._history = new History<BoardState, MoveArgs>() */
+	}
 
-  public abstract get name (): string
+	public get board (): B {
+		return this._board
+	}
+	
+	public get isOver (): boolean {
+		return this._board?.isGameOver() ?? false
+	}
 
-  public get isOver () {
-    return this._state === State.Ended
-  }
+	public get isRunning (): boolean {
+		return this._board && !this._board.isGameOver()
+	}
 
-  public get isStarted () {
-    return this._state !== State.Created
-  }
+	public abstract get name (): string
+	protected abstract _createBoard (): B
+	protected abstract _createBot (complexity: number): Bot<B, MoveArgs, BoardState>
+	protected abstract _getAmountOfPlayers(): number
+	protected abstract _getCurrentPlayerIndex(): number
 
-  public get state (): State {
-    return this._state
-  }
+	// TODO: For the future this method should get User-Identifier.
+	// Some games can contain some hidden information 
+	public getData (): GameData<BoardState> {
+		if (this.state == GameState.Created) {
+			return this._getDataWhenCreated()
+		}
+		if (this.state == GameState.Started) {
+			return this._getDataWhenGameIsGoing()
+		}
+		return this._getDataWhenGameIsOver()
+	}
 
-  public start (wsId: string): boolean {
-    this.room.checkPermission(wsId, 'game-start')
-    if (this.isStarted) {
-      return false
-    }
-    if (this.checkConfig()) {
-      this._state = State.Started
-      this._emitter.emit('started')
-      return true
-    }
-  
-    return false
-  }
-  
-  public async next(): Promise<boolean> {
-    if (this.currentPlayer.isUser) {
-      return false
-    }
-    const bot = this.currentPlayer as Bot<F, M>
-    const field = this._board.getField()
-    const move = await bot.getMove(field)
-    return this._moveAndRegister(move)
-  }
+	private _getDataWhenCreated (): GameData<BoardState> {
+		return {
+			state: this.state
+		}
+	}
 
-  public getHistoryData(): F[] {
-    return this._history.getFields()
-  }
+	private _getDataWhenGameIsGoing (): GameData<BoardState> {
+		return {
+			state: this.state,
+			board: this.board?.getCopyOfState(),
+			history: this._history.getFields(),
+			currentPlayer: this._getCurrentPlayerIndex()
+		}
+	}
 
-  public move (wsId: string, args: M): boolean {
-    if (this.currentPlayer.isBot || (this.currentPlayer as Human).watcher.containsWsId(wsId) == false) {
-      return false
-    }
-    return this._moveAndRegister(args)
-  }
+	// TODO: Find a way to return score for all of games
+	private _getDataWhenGameIsOver (): GameData<BoardState> {
+		return {
+			state: this.state,
+			board: this.board?.getCopyOfState(),
+			history: this._history.getFields(),
+			// winner: this._getWinnerIndex()
+		}
+	}
 
-  private get currentPlayer (): IPlayer {
-    return this._players[this._board.getCurrentPlayer()]
-  }
+	public get state (): GameState {
+		if (!this._board) {
+			return GameState.Created
+		}
+		if (this._board.isGameOver()) {
+			return GameState.Ended
+		}
+		return GameState.Started
+	}
 
-  public addHuman (wsId: string, side: number): boolean {
-    if (this._state != State.Created) {
-      throw new ForbiddenException(null, `The game is running`)
-    }
-    this.room.checkPermission(wsId, 'game-setplayer')
-    const watcher = this.room.getWatcherByWsId(wsId)
-    const currentPlayer = this._players[side]
-    if (currentPlayer && currentPlayer.isUser) {
-      return false
-    }
-    const player = new Human(watcher)
-    return this._setPlayer(side, player)
-  }
+	public start (wsId: string): boolean {
+		if (this.isRunning) {
+			return false
+		}
+		this.room.checkPermission(wsId, 'game-start')
+		
+		if (this.checkConfig()) {
+			this._board = this._createBoard()
+			this._board.onMove(this._onMove.bind(this))
+			this._board.onGameOver(this._onGameOver.bind(this))
+			this._history = new History<BoardState, MoveArgs>()
+			this._emitter.emit('started')
+			return true
+		}
+	
+		return false
+	}
+	
+	public async next (): Promise<boolean> {
+		if (this.isOver || this.currentPlayer.isUser) {
+			return false
+		}
+		const bot = this.currentPlayer as Bot<B, MoveArgs, BoardState>
+		bot.move(this._board)
+	}
 
-  public addBot (wsId: string, side: number, complexity: number): boolean {
-    if (this._state != State.Created) {
-      throw new ForbiddenException(null, `The game is running`)
-    }
-    this.room.checkPermission(wsId, 'game-setplayer')
-    const watcher = this.room.getWatcherByWsId(wsId)
-    const currentPlayer = this._players[side]
-    if (currentPlayer && currentPlayer.isUser && (currentPlayer as Human).watcher !== watcher) {
-      return false
-    }
-    return this._setPlayer(side, this.makeBot(complexity))
-  }
+	public move (wsId: string, args: MoveArgs): boolean {
+		const canMove = this.isRunning
+			&& this.currentPlayer.isUser
+			&& (this.currentPlayer as Human).watcher.containsWsId(wsId)
 
-  public abstract makeBot(complexity: number): Bot<F, M>
+		if (canMove) {
+			// Game observes its board. We will react to successful move inside _onMove callback
+			return this._board.move(args)
+		}
+		return false
+	}
 
-  public checkConfig () {
-    for (let i = 0; i < this._players.length; i++) {
-      if (this._players[i] == null)
-        return false;
-    }
+	private get currentPlayer (): IPlayer {
+		return this._players[this._getCurrentPlayerIndex()]
+	}
 
-    return true;
-  }
+	public addHuman (wsId: string, playerIndex: number): boolean {
+		if (this.isRunning) {
+			throw new ForbiddenException(null, `The game is running`)
+		}
+		this.room.checkPermission(wsId, 'game-setplayer')
 
-  public getSides(): SideInfo[] {
-    return this._board.getSides()
-  }
+		const watcher = this.room.getWatcherByWsId(wsId)
+		const currentPlayer = this._players[playerIndex]
+		if (currentPlayer && currentPlayer.isUser) {
+			return false
+		}
+		const player = new Human(watcher)
+		return this._setPlayer(playerIndex, player)
+	}
 
-  public getPlayers (): (PlayerDto|undefined)[] {
-    const res = []
-    for (let i = 0; i < this._players.length; i++) {
-      res[i] = this._players[i]?.toPlayerDto() ?? undefined
-    }
-    return res
-  }
+	public addBot (wsId: string, side: number, complexity: number): boolean {
+		if (this.isRunning) {
+			throw new Error(`The game is running`)
+		}
+		this.room.checkPermission(wsId, 'game-setplayer')
+		const watcher = this.room.getWatcherByWsId(wsId)
+		const currentPlayer = this._players[side]
+		if (currentPlayer && currentPlayer.isUser && (currentPlayer as Human).watcher !== watcher) {
+			return false
+		}
+		return this._setPlayer(side, this._createBot(complexity))
+	}
 
-  public abstract getData() : any
+	public checkConfig () {
+		for (let i = 0; i < this._players.length; i++) {
+			if (this._players[i] == null)
+				return false;
+		}
 
-  public addListener (event: GameEvent, fn: (...args: any[]) => void) {
-    this._emitter.addListener(event, fn)
-  }
+		return true;
+	}
 
-  public release () {
-    this._emitter.emit('released', this)
-  }
+	public getPlayers (): (PlayerDto|null)[] {
+		const res = []
+		for (let i = 0; i < this._players.length; i++) {
+			// TODO: getPublicData() would be better name
+			res[i] = this._players[i]?.toPlayerDto() ?? null
+		}
+		return res
+	}
 
-  private _moveAndRegister (args: M): boolean {
-    if (this._state != State.Started) {
-      return false
-    }
+	// TODO: If different events send different arguments - create separated methods for adding listeners
+	public addListener (event: GameEvent, fn: (...args: any[]) => void) {
+		this._emitter.addListener(event, fn)
+	}
 
-    const field = this._board.getField()
-    const player = this._board.getCurrentPlayer()
-    const accepted = this._board.move(args)
+	/**
+	 * GameServices listen to this event and delete games from their arrays
+	 */
+	// TODO: Try to find another, more obvious way to release games. 
+	public release () {
+		this._emitter.emit('released', this)
+	}
 
-    if (accepted) {
-      this._emitter.emit('moved')
-      this._history.push(field, args, player)
-      if (this._board.isGameOver()) {
-        this._state = State.Ended
-        this._emitter.emit('over')
-      }
-    }
+	private _onMove (board: B, previousState: BoardState, args: MoveArgs) {
+		this._registerMove(previousState, args)
+		this._emitter.emit('moved')
+	}
 
-    return accepted
-  }
+	private _registerMove (boardState: BoardState, args: MoveArgs) {
+		this._history.push(boardState, args)
+	}
 
-  /**
-   * Sets bots or humans
-   * @param side 
-   * @param player 
-   */
-   private _setPlayer (side: number, player: IPlayer): boolean {
-    this._players[side] = player
+	private _onGameOver (board: B) {
+		this._emitter.emit('over')
+	}
 
-    // TODO: Seems like here we should give CONFIG, not only Players
-    this._emitter.emit('config', this.getPlayers())
-    return true
-  }
+	/**
+	 * Sets bots or humans
+	 * @param side 
+	 * @param player 
+	 */
+	private _setPlayer (side: number, player: IPlayer): boolean {
+		this._players[side] = player
+
+		// TODO: Seems like here we should give CONFIG, not only Players
+		this._emitter.emit('config', this.getPlayers())
+		return true
+	}
 }
 
 export type GameEvent = 'config'|'started'|'moved'|'over'|'released'

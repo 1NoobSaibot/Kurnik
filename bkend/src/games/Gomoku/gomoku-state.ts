@@ -5,6 +5,6 @@ export enum GomokuCell {
 }
 
 export class GomokuState {
-	m: GomokuCell[][]
-	currentPlayer: GomokuCell
+	cells: GomokuCell[][]
+	currentSide: GomokuCell
 }

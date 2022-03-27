@@ -1,10 +1,9 @@
-import { Body, Controller, Delete, Get, Post, Query, Res } from '@nestjs/common'
-import { ApiCreatedResponse, ApiNotFoundResponse, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { Controller, Delete, Get, Post, Query, Res } from '@nestjs/common'
+import { ApiNotFoundResponse, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { Response } from 'express'
 import { RoomsService } from 'src/rooms/rooms.service'
 import { BaldaGame } from './balda.game'
 import { BaldaService } from './balda.service'
-import { BaldaGameDto } from './dtos/balda-game.dto'
 
 @ApiTags('Balda')
 @Controller('api/balda')
@@ -57,7 +56,6 @@ export class BaldaController {
 		return res.sendStatus(200)
 	}
 
-	@ApiCreatedResponse({ type: BaldaGameDto })
 	@ApiNotFoundResponse()
 	@Post('/new/game')
 	createGame (

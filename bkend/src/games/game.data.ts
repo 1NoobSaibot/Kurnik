@@ -1,8 +1,4 @@
-export enum GameState {
-	Created,
-	Started,
-	Ended
-}
+import { GameState } from "./game"
 
 export interface GameData<BoardState> {
 	state: GameState

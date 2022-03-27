@@ -1,100 +1,55 @@
-import { IBoard, SideInfo } from "src/games/IBoard"
-import GomokuField from "./gomoku-field"
-import GomokuMove from "./gomoku-move"
+import { Board } from "src/games/IBoard"
 import { GomokuCell, GomokuState } from "./gomoku-state"
-import { Score } from "../common"
+import { Point } from "../common/point"
 
 const FIELD_WEIGHT = 19
 
-export class GomokuBoard implements IBoard<GomokuMove, GomokuField> {
-	private _state: GomokuState
+export class GomokuBoard extends Board<Point, GomokuState> {
+	private _cells: GomokuCell[][]
+	private _currentSide: GomokuCell = GomokuCell.White
 	private _winner: GomokuCell = GomokuCell.Empty
-	private _isGameOver: boolean = false
 
-	get winner(): GomokuCell {
-		if (!this._isGameOver)
-			throw new Error("Trying to get winner before game is over")
-		return this._winner
+	getCurrentSide () {
+		return this._currentSide
 	}
-
-	isGameOver(): boolean {
-		return this._isGameOver
-	}
-
-	getCurrentPlayer() {
-		return this._state.currentPlayer
-	}
-
-	getAmountOfPlayers() {
-		return 2
-	}
-
 
 	constructor() {
-		const m = new Array(FIELD_WEIGHT)
-		for (let i = 0; i < m.length; i++) {
-			m[i] = new Array(FIELD_WEIGHT)
+		super()
+		const cells = new Array(FIELD_WEIGHT)
+		for (let i = 0; i < cells.length; i++) {
+			cells[i] = new Array(FIELD_WEIGHT)
 			for (let j = 0; j < FIELD_WEIGHT; j++) {
-				m[i][j] = GomokuCell.Empty
+				cells[i][j] = GomokuCell.Empty
 			}
 		}
-
-		const state = new GomokuState()
-		state.currentPlayer = GomokuCell.White
-		state.m = m
-		this._state = state
+		this._cells = cells
 	}
 
-	public move({ x, y }: GomokuMove): boolean {
-		if (this.isGameOver() || this._state.m[x][y] !== GomokuCell.Empty)
-			return false
+	public canMove (position: Point): boolean {
+		return this._cells[position.x][position.y] == GomokuCell.Empty
+	}
 
-		this._state.m[x][y] = this._state.currentPlayer
+	protected _move ({ x, y }: Point) {
+		this._cells[x][y] = this._currentSide
 		if (this._checkForWin(x, y)) {
-			this._winner = this._state.currentPlayer
-			this._isGameOver = true
-		} else if (this._checkForEndOfGame()) {
-			this._isGameOver = true
+			this._winner = this._currentSide
+			this._currentSide = GomokuCell.Empty
+		} else if (this._checkIsBoardFull()) {
+			this._currentSide = GomokuCell.Empty
 		} else {
 			this._swapPlayer()
 		}
 	}
 
-	public getScore(playerIndex: number): Score {
-		if (!this.isGameOver())
-			throw new Error('Trying to get score before the game is over')
-		
-		if (this._winner === GomokuCell.Empty)
-			return Score.Draw
-		
-		if (this._winner === this._playerIndex2Cell(playerIndex))
-			return Score.Winner
-		return Score.Looser
+	protected _checkIsGameOver(): boolean {
+		return this._winner != GomokuCell.Empty || this._checkIsBoardFull()
 	}
 
-	public getField() {
-		return new GomokuField(this._state)
-	}
-
-	public getMoves() {
-		const moves: GomokuMove[] = []
-		const currentPlayer = this._state.currentPlayer
-
-		for (let x = 0; x < FIELD_WEIGHT; x++) {
-			for (let y = 0; y < FIELD_WEIGHT; y++) {
-				if (this._state.m[x][y] == GomokuCell.Empty)
-					moves.push({ x, y })
-			}
+	public getCopyOfState(): GomokuState {
+		return {
+			cells: this._cells.map(row => row.map(cell => cell)),
+			currentSide: this._currentSide
 		}
-
-		return moves
-	}
-
-	public getSides(): SideInfo[] {
-		return [
-			{ index: 0, name: 'White' },
-			{ index: 1, name: 'Black' }
-		]
 	}
 	
 	private _checkForWin(x: number, y: number): boolean {
@@ -109,7 +64,7 @@ export class GomokuBoard implements IBoard<GomokuMove, GomokuField> {
 			{ dx: -1, dy: 1 }
 		]
 
-		const m = this._state.m
+		const m = this._cells
 		const player = m[x][y]
 
 		for (let i = 0; i < dirs.length; i++) {
@@ -139,10 +94,10 @@ export class GomokuBoard implements IBoard<GomokuMove, GomokuField> {
 	 * Returns true if the board has no empty cells
 	 * @returns is board full
 	 */
-	private _checkForEndOfGame(): boolean {
+	protected _checkIsBoardFull(): boolean {
 		for (let i = 0; i < FIELD_WEIGHT; i++) {
 			for (let j = 0; j < FIELD_WEIGHT; j++) {
-				if (this._state.m[i][j] === GomokuCell.Empty)
+				if (this._cells[i][j] === GomokuCell.Empty)
 					return false
 			}
 		}
@@ -151,14 +106,8 @@ export class GomokuBoard implements IBoard<GomokuMove, GomokuField> {
 	}
 
 	private _swapPlayer(): void {
-		this._state.currentPlayer = this._state.currentPlayer === GomokuCell.White
+		this._currentSide = this._currentSide === GomokuCell.White
 			? GomokuCell.Black
 			: GomokuCell.White
-	}
-
-	private _playerIndex2Cell (index: number) {
-		if (index === 0) return GomokuCell.White
-		if (index === 1) return GomokuCell.Black
-		throw new Error(`Unexpected index (${index}): cannot convert playerIndex to boardSide`)
 	}
 }

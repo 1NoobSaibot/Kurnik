@@ -2,30 +2,39 @@ import { Room } from "src/rooms/room";
 import { Game } from "../game";
 import { Bot } from "../Player";
 import { BaldaBoard } from "./balda.board";
-import { BaldaField } from "./balda.field";
 import { BaldaMove } from "./balda.move";
 import { BaldaService } from "./balda.service";
-import { BaldaGameDto } from "./dtos/balda-game.dto";
+import { BaldaState } from "./balda.state";
 
-export class BaldaGame extends Game<BaldaBoard, BaldaMove, BaldaField> {
+export class BaldaGame extends Game<BaldaBoard, BaldaMove, BaldaState> {
+	private _service: BaldaService
+	private _lang: string
+	private _size: number
+
 	constructor (id: number, room: Room, service: BaldaService, lang: string, size: number) {
 		super(id, room)
-		this._board = new BaldaBoard(service, lang, size)
+		this._service = service
+		this._lang = lang
+		this._size = size
 	}
 
 	public get name () {
 		return 'Balda'
 	}
 
-	getData (): BaldaGameDto {
-		return {
-			board: this._board.getField(),
-			isGameOver: this.isOver,
-			currentPlayer: this._board.getCurrentPlayer()
-		}
+	protected _createBot(complexity: number): Bot<BaldaBoard, BaldaMove, BaldaState> {
+		throw new Error('Not Implemented')
 	}
 
-	public makeBot(complexity: number): Bot<BaldaField, BaldaMove> {
-		throw new Error('Not Implemented')
+	protected _createBoard(): BaldaBoard {
+		return new BaldaBoard(this._service, this._lang, this._size)
+	}
+
+	protected _getCurrentPlayerIndex(): number {
+		return this.board.getCurrentPlayer()
+	}
+
+	protected _getAmountOfPlayers(): number {
+		return 2
 	}
 }

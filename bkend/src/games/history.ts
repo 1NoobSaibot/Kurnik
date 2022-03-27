@@ -1,32 +1,21 @@
-export class HistoryNode<F, Move extends Object> {
-	readonly field: F
-	readonly move: Move
-	readonly playerIndex: number
+export class HistoryPair<BoardState, MoveArgs> {
+	readonly field: BoardState
+	readonly move: MoveArgs
 
-	constructor(field: F, move: Move, playerIndex: number) {
+	constructor (field: BoardState, move: MoveArgs) {
 		this.field = field
 		this.move = move
-		this.playerIndex = playerIndex
 	}
 }
 
-export class History<F, Move> {
-	private _stack: HistoryNode<F, Move>[] = []
+export class History<BoardState, MoveArgs> {
+	public readonly _pairs: HistoryPair<BoardState, MoveArgs>[] = []
 
-	public push(field: F, move: Move, playerIndex: number) {
-		this._stack.push(new HistoryNode(field, move, playerIndex))
+	public push (field: BoardState, move: MoveArgs) {
+		this._pairs.push(new HistoryPair(field, move))
 	}
 
-	public getMovesByPlayer(playerIndex: number): HistoryNode<F, Move>[] {
-		return this._stack
-			.filter(node => node.playerIndex === playerIndex)
-	}
-
-	public getFields(): F[] {
-		const res : F[] = []
-		for (let i = 0; i < this._stack.length; i++) {
-			res.push(this._stack[i].field)
-		}
-		return res
+	public getFields(): BoardState[] {
+		return this._pairs.map(pair => pair.field)
 	}
 }
