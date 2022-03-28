@@ -1,5 +1,5 @@
 import { Score } from "../common/score"
-import { Board } from "../IBoard"
+import { Board } from "../board"
 import { BaldaState, PlayerState } from "./balda.state"
 import { BaldaMove } from "./balda.move"
 import { BaldaService } from "./balda.service"

@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Watcher } from 'src/rooms/watcher'
-import { Board } from './IBoard'
+import { Board } from './board'
 
 export interface IPlayer {
 	isBot: boolean

@@ -1,4 +1,4 @@
-import { Board } from '../IBoard'
+import { Board } from '../board'
 import { ReversiState } from './reversi-state'
 import { ReversiCell } from './reversi-state'
 import { Point } from '../common/point'

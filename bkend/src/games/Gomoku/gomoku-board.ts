@@ -1,4 +1,4 @@
-import { Board } from "src/games/IBoard"
+import { Board } from "src/games/board"
 import { GomokuCell, GomokuState } from "./gomoku-state"
 import { Point } from "../common/point"
 

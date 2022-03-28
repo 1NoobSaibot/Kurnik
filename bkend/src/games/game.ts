@@ -1,16 +1,10 @@
 import { Bot, Human, IPlayer, PlayerDto } from './Player'
-import { Board } from './IBoard'
+import { Board } from './board'
 import { History } from './history'
 import { Room } from 'src/rooms/room'
 import { EventEmitter } from 'events'
 import { ForbiddenException } from '@nestjs/common'
 import { GameData } from './game.data'
-
-export enum GameState {
-	Created,
-	Started,
-	Ended
-}
 
 export abstract class Game<B extends Board<MoveArgs, BoardState>, MoveArgs, BoardState> {
 	public readonly id: number
@@ -98,7 +92,7 @@ export abstract class Game<B extends Board<MoveArgs, BoardState>, MoveArgs, Boar
 		}
 		this.room.checkPermission(wsId, 'game-start')
 		
-		if (!this.checkConfig()) {
+		if (!this.isConfigComplete()) {
 			return false
 		}
 	
@@ -169,13 +163,14 @@ export abstract class Game<B extends Board<MoveArgs, BoardState>, MoveArgs, Boar
 		return this._setPlayer(side, this._createBot(complexity))
 	}
 
-	public checkConfig () {
+	public isConfigComplete (): boolean {
 		for (let i = 0; i < this._players.length; i++) {
-			if (this._players[i] == null)
-				return false;
+			if (this._players[i] == null) {
+				return false
+			}
 		}
 
-		return true;
+		return true
 	}
 
 	public getPlayers (): (PlayerDto|null)[] {
@@ -213,11 +208,6 @@ export abstract class Game<B extends Board<MoveArgs, BoardState>, MoveArgs, Boar
 		this._emitter.emit('over')
 	}
 
-	/**
-	 * Sets bots or humans
-	 * @param side 
-	 * @param player 
-	 */
 	private _setPlayer (side: number, player: IPlayer): boolean {
 		this._players[side] = player
 
@@ -228,6 +218,12 @@ export abstract class Game<B extends Board<MoveArgs, BoardState>, MoveArgs, Boar
 }
 
 export type GameEvent = 'config'|'started'|'moved'|'over'|'released'
+
+export enum GameState {
+	Created,
+	Started,
+	Ended
+}
 
 async function sleep (ms: number): Promise<void> {
 	return new Promise((resolve) => {
